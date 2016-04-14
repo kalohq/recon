@@ -1,0 +1,21 @@
+{
+  "parser": "babel-eslint",
+  "plugins": [
+    "react",
+    "flow-vars"
+  ],
+  "extends": "lystable",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "DEBUG": true
+  },
+  "rules": {
+    "max-len": [2, 140],
+    "flow-vars/define-flow-type": 1,
+    "flow-vars/use-flow-type": 1,
+    "spaced-comment": 0
+  }
+}

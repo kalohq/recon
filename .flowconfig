@@ -1,0 +1,13 @@
+[ignore]
+.*/node_modules/.*
+.*/node_modules/react\(-dom\)?/.*
+.*/dist/.*
+.*/.*\.config\.js
+
+[include]
+
+[libs]
+flow/
+
+[options]
+

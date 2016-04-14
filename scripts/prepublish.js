@@ -1,1 +1,0 @@
-const basePkg = require('./package.base.json');
