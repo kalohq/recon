@@ -1,0 +1,5 @@
+{
+  "name": "recon-server",
+  "version": "0.0.0",
+  "description": "A GraphQL server for querying the Recon Engine."
+}
