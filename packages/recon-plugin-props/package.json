@@ -1,6 +1,6 @@
 {
   "name": "recon-plugin-props",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Recon plugin for extracting prop type information.",
   "main": "lib/index.js",
   "keywords": [
