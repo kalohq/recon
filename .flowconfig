@@ -3,6 +3,7 @@
 .*/node_modules/react\(-dom\)?/.*
 .*/dist/.*
 .*/.*\.config\.js
+.*/Gulpfile\.js
 
 [include]
 
