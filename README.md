@@ -9,6 +9,8 @@ Recon
 
 Powerful documentation utilities for React
 
+[![Build Status](https://travis-ci.org/recon-js/recon.svg?branch=master)](https://travis-ci.org/recon-js/recon)
+
 ### What?
 
 1. An **intelligence engine** for understanding your component ecosystem
