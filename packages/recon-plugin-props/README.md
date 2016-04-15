@@ -1,4 +1,4 @@
-recon-engine
-============
+recon-plugin-props
+==================
 
-Engine runtime for Recon intelligence.
+Recon plugin for extracting component prop type data.

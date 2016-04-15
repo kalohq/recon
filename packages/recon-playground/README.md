@@ -1,4 +1,4 @@
-recon-engine
-============
+recon-playground
+================
 
-Engine runtime for Recon intelligence.
+Framework for building next-gen developer tools with the power of Recon.

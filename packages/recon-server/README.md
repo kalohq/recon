@@ -1,4 +1,4 @@
-recon-engine
+recon-server
 ============
 
-Engine runtime for Recon intelligence.
+GraphQL server in front of a Recon Engine.

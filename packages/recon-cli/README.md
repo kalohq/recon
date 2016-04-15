@@ -1,4 +1,4 @@
-recon-engine
-============
+recon-cli
+=========
 
-Engine runtime for Recon intelligence.
+Command line interface for wielding the power of Recon.
