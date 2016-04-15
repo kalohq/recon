@@ -8,7 +8,7 @@
     "test": "npm run test:lint && npm run test:type && npm run test:unit",
     "build": "gulp build",
     "build:watch": "gulp watch",
-    "pub": "npm run test && node ./scripts/prepublish.js && lerna publish"
+    "pub": "npm run test && lerna publish"
   },
   "author": "Chris Pearce <hello@chrispearce.me>",
   "license": "MIT",
