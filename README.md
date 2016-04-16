@@ -13,7 +13,7 @@ Code Intelligence for React Applications.
 
 ### What?
 
-1. An **intelligence engine** for understanding your component ecosystem
+1. An [**intelligence engine**](https://www.dropbox.com/s/gybwj3oa053mh2l/Redocs%20Introduction.svg?dl=0) for understanding your component ecosystem
 2. A **playground framework** for creating next-gen developer tools
 
 ### When?
