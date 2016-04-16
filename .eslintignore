@@ -1,3 +1,4 @@
 **/node_modules/**/*.js
 **/dist/**/*.js
 **/lib/**/*.js
+**/*.js.flow

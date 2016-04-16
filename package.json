@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "test:lint": "eslint **/src/**",
-    "test:type": "flow check --all",
+    "test:type": "flow check",
     "test:unit": "mocha **/lib/**/__tests__/*.test.js",
     "pretest": "npm run build",
     "test": "npm run test:lint && npm run test:type && npm run test:unit",

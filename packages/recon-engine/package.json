@@ -17,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/recon-js/recon/issues"
   },
-  "homepage": "https://github.com/recon-js/recon"
+  "homepage": "https://github.com/recon-js/recon",
+  "dependencies": {
+    "babel-traverse": "^6.7.6",
+    "babel-types": "^6.7.2",
+    "babylon": "^6.7.0",
+    "lodash": "^4.11.1"
+  }
 }

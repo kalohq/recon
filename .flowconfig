@@ -1,9 +1,8 @@
 [ignore]
-.*/node_modules/.*
 .*/node_modules/react\(-dom\)?/.*
-.*/dist/.*
 .*/.*\.config\.js
 .*/Gulpfile\.js
+.*/json5/test/.*
 
 [include]
 
