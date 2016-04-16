@@ -11,7 +11,7 @@ import type Binding from 'babel-traverse/lib/scope/binding';
  * Given a module ast get reference to a specific export path
  * NOTE: name === "default" is treated specially
  */
-function getExportPath(name, moduleAst) {
+function getExportPath(name: string, moduleAst: BabelNode): NodePath {
   let identifierPath;
 
   // Find `export default definition;`
@@ -84,7 +84,7 @@ type Resolution = {
  * Note: path should be an Identifier path OR ExportSpecifier path within
  *       the scope of the specified module
  */
-export function resolveDefinition(path: NodePath, module: Module, resolveModule?: Function): Resolution {
+export default function resolveDefinition(path: NodePath, module: Module, resolveModule?: Function): Resolution {
   // export {definition as definition} from 'other-module';
   if (T.isExportSpecifier(path.node) && path.parent.source) {
     if (!resolveModule) {

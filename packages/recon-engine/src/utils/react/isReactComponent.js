@@ -23,7 +23,7 @@ function containsJSX(path: NodePath): boolean {
 }
 
 /** Is given path a react component declaration? */
-export function isReactComponent(path: NodePath): boolean {
+export default function isReactComponent(path: NodePath): boolean {
   if (T.isClassDeclaration(path)) {
     return !!find(path.node.body.body, node => T.isClassMethod(node) && node.key.name === 'render');
   }

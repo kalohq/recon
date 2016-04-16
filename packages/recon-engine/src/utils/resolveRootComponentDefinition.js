@@ -1,6 +1,6 @@
 /* @flow */
-import * as ReactUtils from './react';
-import * as Resolver from './resolver';
+import isReactComponent from './react/isReactComponent';
+import resolveDefinition from './resolveDefinition';
 import * as T from 'babel-types';
 
 import type {NodePath} from 'babel-traverse';
@@ -32,15 +32,15 @@ type Resolution = {
  *       every need but does ours for now.
  *
  */
-export function resolveRootComponentDefinition(path: NodePath, module: Module, resolveFile?: Function): Resolution {
-  const definition = Resolver.resolveDefinition(path, module, resolveFile);
+export default function resolveRootComponentDefinition(path: NodePath, module: Module, resolveFile?: Function): Resolution {
+  const definition = resolveDefinition(path, module, resolveFile);
   const {binding} = definition;
 
   if (!binding) {
     return definition;
   }
 
-  if (ReactUtils.isReactComponent(binding.path)) {
+  if (isReactComponent(binding.path)) {
     return definition;
   }
 
@@ -51,8 +51,8 @@ export function resolveRootComponentDefinition(path: NodePath, module: Module, r
     // Search through identifier definitions till we find a react component
     const referenceVisitor = {
       Identifier(identifierPath) {
-        const nextDefinition = Resolver.resolveDefinition(identifierPath, module);
-        if (nextDefinition.binding && ReactUtils.isReactComponent(nextDefinition.binding.path)) {
+        const nextDefinition = resolveDefinition(identifierPath, module);
+        if (nextDefinition.binding && isReactComponent(nextDefinition.binding.path)) {
           foundDefinition = nextDefinition;
           identifierPath.stop();
         }
