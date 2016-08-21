@@ -19,6 +19,7 @@ describe('react-engine::parse/parseModule', () => {
       run('no-components');
       run('basic-components');
       run('enhanced-components');
+      run('real-world-lystable');
     });
 
   });

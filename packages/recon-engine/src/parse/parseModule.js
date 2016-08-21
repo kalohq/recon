@@ -11,7 +11,8 @@ function parseSource(moduleSource) {
     plugins: [
       'jsx',
       'flow',
-      'objectRestSpread'
+      'objectRestSpread',
+      // TODO: ALL plugins?
     ]
   });
 }
@@ -117,9 +118,9 @@ function pullSymbols(ast) {
     } else if (T.isVariableDeclaration(decl)) {
       pushVariableDeclaration(decl);
       decl.declarations.forEach(
-        node => symbols.push({
+        vDecl => symbols.push({
           name: `export::default`,
-          type: resolveType(node.id)
+          type: resolveType(vDecl.id)
         })
       );
     } else if (T.isClassDeclaration(decl)) {
@@ -128,7 +129,7 @@ function pullSymbols(ast) {
         name: `export::default`,
         type: resolveType(decl.id)
       });
-    } else if (T.isIdentifier(decl)) {
+    } else {
       symbols.push({
         name: `export::default`,
         type: resolveType(decl)
@@ -202,6 +203,8 @@ function pullDeps(ast) {
               })
             : ({
                 name: attr.name.name,
+                // TODO: see if we can find  union of possible values. Eg. color = someVar ? 'green' : 'red'
+                // TODO: for simple identifier types we could sometimes resolve to component prop types
                 type: T.isJSXExpressionContainer(attr.value)
                   ? resolveType(attr.value.expression)
                   : resolveType(attr.value)
@@ -214,7 +217,7 @@ function pullDeps(ast) {
   };
 
   traverse(ast, visitor);
-  return deps; // todo: make immutable
+  return [...deps];
 }
 
 /* Search declarations and references to see if prop types are defined (FLOW?) */
@@ -265,6 +268,7 @@ function pullComponents(ast) {
         // for expressions we need to find the parent variable
         // declarator in order to name it. As we traverse we can
         // also gather "enhancements"
+        // TODO: Gather enhancements off of decorators
         let tPath = path;
         let name = null;
         const enhancements = mutableArray();

@@ -9,8 +9,11 @@ export function FunctionalComponent () {
 }
 
 // Note we currently do not detect this as a "directly enhanced" component
-// but rather it can be imported as an enhancement path for the
-// referenced FunctionalComponent
+// but rather it can be seen as an "enhancement path" for the
+// referenced `FunctionalComponent`. Ie. if `EnhancedFunctionalComponent`
+// was referenced as a dep from another component we could trace it back
+// to `FunctionalComponent` but mark this as a "enhancement path".
+// In the future we may want to discover all these within a module at parse time.
 export const EnhancedFunctionalComponent = withState()(
   FunctionalComponent
 );
