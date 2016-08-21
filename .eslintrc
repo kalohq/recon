@@ -10,7 +10,7 @@
     "node": true
   },
   "globals": {
-    "DEBUG": true
+    "__DEBUG__": true
   },
   "rules": {
     "max-len": [2, 140],
