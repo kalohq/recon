@@ -318,6 +318,8 @@ function pullComponents(ast) {
         });
       }
 
+      // TODO: Pull more meta data... eg. attached docblocs etc
+
     }
 
     path.skip();

@@ -1,0 +1,25 @@
+{
+  modules {
+    path
+  }
+
+  components {
+    name,
+    dependencies {
+      name,
+      usages {
+        props {
+          name
+        }
+      }
+    },
+    dependants {
+      name,
+      usages {
+        props {
+          name
+        }
+      }
+    }
+  }
+}

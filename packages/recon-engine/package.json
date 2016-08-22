@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/recon-js/recon",
   "dependencies": {
-    "babel-traverse": "^6.7.6",
-    "babel-types": "^6.7.2",
-    "babylon": "^6.7.0",
-    "lodash": "^4.11.1"
+    "babel-traverse": "^6.13.0",
+    "babel-types": "^6.13.0",
+    "babylon": "^6.9.0",
+    "glob": "^7.0.5",
+    "graphql": "^0.6.2",
+    "lodash": "^4.15.0"
   }
 }
