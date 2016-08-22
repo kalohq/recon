@@ -30,8 +30,8 @@ function createSchema(
   {resolveModule = defaultResolveModule} = {}
 ) {
 
-  // TODO: Heavy meoizing strategy will be required
-  // TODO: Need to generate uuid's for everything
+  // TODO: Heavy memoizing strategy will be required
+  // TODO: Need to generate uuid's for components
 
   function allComponents() {
     return flatten(map(store, m => m.data.components))

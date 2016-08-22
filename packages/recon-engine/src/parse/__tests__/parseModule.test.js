@@ -6,21 +6,20 @@ const Path = require('path');
 describe('react-engine::parse/parseModule', () => {
   describe('::parseModule (default)', () => {
 
-    it('should parse module information as expected', () => {
-      function run(path) {
-        const absPath = Path.join(__dirname, '../__fixtures__/parseModule', path);
-        const output = require(`${absPath}/output`);
-        const src = FS.readFileSync(`${absPath}/src.js`, {encoding: 'utf8'});
-        const module = {src, path};
-        expect(parseModule(module)).toMatch(output);
-      }
+    function run(path) {
+      const absPath = Path.join(__dirname, '../__fixtures__/parseModule', path);
+      const output = require(`${absPath}/output`);
+      const src = FS.readFileSync(`${absPath}/src.js`, {encoding: 'utf8'});
+      const module = {src, path};
+      expect(parseModule(module)).toMatch(output);
+    }
 
-      run('empty');
-      run('no-components');
-      run('basic-components');
-      run('enhanced-components');
-      run('real-world-lystable');
-    });
+    it('should parse module information as expected: empty', () => run('empty'));
+    it('should parse module information as expected: no-components', () => run('no-components'));
+    it('should parse module information as expected: basic-components', () => run('basic-components'));
+    it('should parse module information as expected: enhanced-components', () => run('enhanced-components'));
+    it('should parse module information as expected: real-world-lystable', () => run('real-world-lystable'));
+    it('should parse module information as expected: re-exports', () => run('re-exports'));
 
   });
 });

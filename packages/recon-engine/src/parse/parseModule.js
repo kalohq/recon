@@ -35,6 +35,8 @@ function resolveType(node, data = {}) {
 function pullSymbols(ast) {
   const symbols = mutableArray();
 
+  // TODO: Need to think hard about how we store each symbol "type" to allow easy resolution later
+
   function pushVariableDeclaration(node) {
     node.declarations.forEach(
       node => pushVariableDeclarator(node)
@@ -62,10 +64,10 @@ function pullSymbols(ast) {
     });
   }
 
-  function pushExportSpecifier(node) {
+  function pushExportSpecifier(node, {source} = {}) {
     symbols.push({
       name: `export::${node.exported.name}`,
-      type: resolveType(node.exported)
+      type: resolveType(node, {source})
     });
   }
 
@@ -100,8 +102,9 @@ function pullSymbols(ast) {
     if (node.declaration) {
       pushExportDeclaration(node.declaration);
     } else {
+      const source = node.source ? node.source.value : undefined;
       node.specifiers.forEach(
-        node => pushExportSpecifier(node)
+        node => pushExportSpecifier(node, {source})
       );
     }
   }
@@ -187,6 +190,9 @@ function pullSymbols(ast) {
 /* Pull dep & usage info out of a render method/func ast */
 function pullDeps(ast) {
   const deps = mutableArray();
+
+  // TODO: Search React.createElement
+  // TODO: Allow other syntaxes such as hyperscript? part of plugin/config customisation
 
   const visitor = {
     JSXElement(path) {

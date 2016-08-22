@@ -18,7 +18,6 @@ function run(path) {
     setTimeout(() => { // TODO: Need some way of knowing when recon is working/ready :D
       engine.runQuery(query).then(
         result => {
-          console.log(JSON.stringify(result, null, 2));
           expect(result).toMatch(output);
           accept();
         }
@@ -30,12 +29,7 @@ function run(path) {
 describe('react-engine::engine/createEngine', () => {
   describe('::createEngine (default)', () => {
 
-    it('should respond to query as expected', (done) => {
-      const tests = [
-        run('basic-app')
-      ];
+    it('should respond to query as expected: basic-app', () => run('basic-app'));
 
-      Promise.all(tests).then(() => done()).catch(err => done(err));
-    });
   });
 });
