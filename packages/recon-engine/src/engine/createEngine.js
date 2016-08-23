@@ -14,6 +14,9 @@ function createEngine({files, cwd} = {}) {
       throw error;
     }
 
+    console.log(`Found ${foundFiles.length} modules`);
+
+    let numParsed = 0;
     foundFiles.forEach(
       file => {
         const path = Path.join(cwd, file);
@@ -24,11 +27,14 @@ function createEngine({files, cwd} = {}) {
             }
 
             const module = {src, path};
+            numParsed = numParsed + 1;
+            console.log(`Parsing module: ${file} ... (${numParsed}/${foundFiles.length})`);
             modules.push(parseModule(module));
+            console.log(`Parsed module: ${file} (${numParsed}/${foundFiles.length})`);
           }
         )
       }
-    )
+    );
   });
 
   const schema = createSchema(modules);

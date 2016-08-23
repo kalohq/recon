@@ -144,8 +144,8 @@ function pullSymbols(ast) {
     const source = node.source.value;
     node.specifiers.forEach(
       spec => symbols.push({
-        name: spec.local.name,
-        type: resolveType(spec, {source}),
+        name: T.isIdentifier(spec.exported) ? spec.exported.value : spec.local.name,
+        type: resolveType(spec, {source, sourceName: spec.local.name}),
       })
     )
   }
@@ -261,7 +261,7 @@ function shouldPullComponent(path) {
 }
 
 /* Pull component information out of our ast */
-function pullComponents(ast) {
+function pullComponents(ast, {globalId, definedIn}) {
   const components = mutableArray();
 
   function visitReactComponent(path) {
@@ -295,32 +295,38 @@ function pullComponents(ast) {
         }
 
         components.push({
+          id: globalId(name),
           name: name,
           node: path.node,
           enhancements: [...enhancements],
           props: findProps(path),
           deps: pullDeps(path.node),
+          definedIn
         });
       }
 
       if (T.isFunctionDeclaration(path) && shouldPullComponent(path)) {
         components.push({
+          id: globalId(path.node.id.name),
           name: path.node.id.name,
           node: path.node,
           enhancements: [],
           props: findProps(path),
           deps: pullDeps(path.node),
+          definedIn
         });
       }
 
       if (T.isClassDeclaration(path) && shouldPullComponent(path)) {
         const renderMethod = path.node.body.body.find(node => T.isClassMethod(node) && node.key.name === 'render');
         components.push({
+          id: globalId(path.node.id.name),
           name: path.node.id.name,
           node: path.node,
           enhancements: [],
           props: findProps(path),
           deps: pullDeps(renderMethod),
+          definedIn
         });
       }
 
@@ -343,17 +349,21 @@ function pullComponents(ast) {
 }
 
 /* Pull info from an ast */
-function pullData(ast) {
+function pullData(ast, opts) {
   return {
-    symbols: pullSymbols(ast),
-    components: pullComponents(ast),
+    symbols: pullSymbols(ast, opts),
+    components: pullComponents(ast, opts),
   };
 }
 
 /* Given a source module extract and provide a parsed module */
 function parseModule({path, src}) {
+  function globalId(symbolName) {
+    return `${path}::${symbolName}`;
+  }
+
   const ast = parseSource(src);
-  const data = pullData(ast);
+  const data = pullData(ast, {globalId, definedIn: path});
 
   return {
     path,

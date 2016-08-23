@@ -18,11 +18,12 @@ function run(path) {
     setTimeout(() => { // TODO: Need some way of knowing when recon is working/ready :D
       engine.runQuery(query).then(
         result => {
+          console.log(JSON.stringify(result, null, 2));
           expect(result).toMatch(output);
           accept();
         }
-      );
-    }, 1000);
+      ).catch(err => reject(err));
+    }, 500);
   })
 }
 

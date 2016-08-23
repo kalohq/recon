@@ -15,10 +15,11 @@ const {
   flatten,
   map,
   groupBy,
-  values
+  values,
+  find
 } = require('lodash');
 
-function defaultResolveModule(context, target) {
+function defaultResolveModulePath(context, target) {
   const resolvedPath = Path.resolve(Path.dirname(context), target);
   return /\.[a-zA-Z0-9]$/.test(resolvedPath)
     ? resolvedPath
@@ -26,15 +27,118 @@ function defaultResolveModule(context, target) {
 }
 
 function createSchema(
-  store,
-  {resolveModule = defaultResolveModule} = {}
+  modules,
+  {resolveModulePath = defaultResolveModulePath} = {}
 ) {
 
   // TODO: Heavy memoizing strategy will be required
   // TODO: Need to generate uuid's for components
 
+  function getDOMComponent(name) {
+    return {
+      id: `__REACT_DOM::${name}`,
+      name,
+      node: null,
+      enhancements: [],
+      props: [],
+      deps: [],
+      definedIn: null
+    };
+  }
+
   function allComponents() {
-    return flatten(map(store, m => m.data.components))
+    return flatten(map(modules, m => m.data.components))
+  }
+
+  function getModule(path) {
+    return find(modules, m => m.path === path);
+  }
+
+  function resolveSymbol(name, module) {
+    const localSymbol = module.data.symbols.find(s => s.name === name);
+
+    if (!localSymbol) {
+      return {
+        name,
+        module,
+        notFound: true
+      };
+    }
+
+    if (localSymbol.type.type === 'Identifier') {
+      return resolveSymbol(localSymbol.type.__node.name, module);
+    }
+
+    if (localSymbol.type.type === 'ImportSpecifier') {
+      return resolveSymbol(
+        `export::${localSymbol.type.sourceName}`,
+        getModule(resolveModulePath(module.path, localSymbol.type.source))
+      );
+    }
+
+    if (localSymbol.type.type === 'ImportDefaultSpecifier') {
+      return resolveSymbol(
+        'export::default',
+        getModule(resolveModulePath(module.path, localSymbol.type.source))
+      );
+    }
+
+    return {
+      name,
+      module
+    };
+  }
+
+  function getComponentFromResolvedSymbol(resolvedSymbol) {
+    return find(resolvedSymbol.module.data.components,
+      c => c.name === resolvedSymbol.name
+    );
+  }
+
+  function resolveComponentByName(name, module) {
+    // JSX Convention says if the identifier begins lowercase it is
+    // a dom node rather than a custom component
+    if (/^[a-z][a-z0-9]*/.test(name)) {
+      return getDOMComponent(name);
+    }
+
+    const symbol = resolveSymbol(name, module);
+
+    if (symbol.notFound) {
+      return null;
+    }
+
+    return getComponentFromResolvedSymbol(symbol) || null;
+  }
+
+  function resolveComponent(component, module) {
+
+    // TODO: Need to track/resolve enhancement paths via usage
+
+    const resolvedDeps = map(
+      values(groupBy(component.deps, 'name')),
+      usages => {
+        const resolvedComponent = resolveComponentByName(usages[0].name, module);
+
+        return {
+          name: usages[0].name,
+          component: resolvedComponent,
+          usages: map(usages, u => Object.assign({}, u, {component: resolvedComponent}))
+        };
+      }
+    );
+
+    return Object.assign({}, component, {
+      resolvedDeps
+    });
+  }
+
+  function allResolvedComponents() {
+    return flatten(modules.map(
+      module => module.data.components.map(
+        component => resolveComponent(component, module)
+      )
+    ));
   }
 
   const symbolType = new GraphQLObjectType({
@@ -71,7 +175,8 @@ function createSchema(
     name: 'ComponentUsageType',
     fields: () => ({
       name: {type: GraphQLString},
-      props: {type: propUsageType}
+      component: {type: componentType},
+      props: {type: new GraphQLList(propUsageType)}
     })
   });
 
@@ -79,6 +184,7 @@ function createSchema(
     name: 'ComponentDependencyType',
     fields: () => ({
       name: {type: GraphQLString},
+      component: {type: componentType},
       usages: {type: new GraphQLList(componentUsageType)}
     })
   });
@@ -86,23 +192,34 @@ function createSchema(
   const componentType = new GraphQLObjectType({
     name: 'ComponentType',
     fields: () => ({
+      id: {type: GraphQLString},
       name: {type: GraphQLString},
       dependencies: {
         type: new GraphQLList(componentDependencyType),
         resolve: (component) => {
-          return map(
-            values(groupBy(component.deps, 'name')),
-            usages => ({
-              name: usages[0].name,
-              usages
-            })
-          );
+          const all = allResolvedComponents();
+
+          return find(all, c => c.id === component.id).resolvedDeps;
         }
       },
       dependants: {
         type: new GraphQLList(componentDependencyType),
         resolve: (component) => {
-          return [];
+          const all = allResolvedComponents();
+
+          // TODO: Fix
+
+          return all.filter(c => c.resolvedDeps.find(depC => depC.component && depC.component.id === component.id)).map(
+            c => c.resolvedDeps.filter(depC => depC.component && depC.component.id === component.id).map(depC => Object.assign({}, depC, {
+              component: c
+            }))
+          );
+        }
+      },
+      module: {
+        type: moduleType,
+        resolve: (component) => {
+          return modules.find(m => m.path === component.definedIn)
         }
       }
     })
@@ -121,7 +238,7 @@ function createSchema(
         modules: {
           type: new GraphQLList(moduleType),
           resolve() {
-            return store;
+            return modules;
           }
         }
       })

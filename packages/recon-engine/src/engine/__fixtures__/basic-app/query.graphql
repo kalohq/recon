@@ -7,6 +7,9 @@
     name,
     dependencies {
       name,
+      component {
+        id
+      }
       usages {
         props {
           name
@@ -15,6 +18,11 @@
     },
     dependants {
       name,
+      component {
+        id,
+        name,
+        name
+      }
       usages {
         props {
           name
