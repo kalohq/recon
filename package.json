@@ -10,8 +10,8 @@
     "build:watch": "gulp watch",
     "pub": "npm run test && lerna publish"
   },
-  "author": "Chris Pearce <hello@chrispearce.me>",
-  "license": "MIT",
+  "author": "Lystable Industries <chris.pearce@lystable.com>",
+  "license": "Apache-2.0",
   "devDependencies": {
     "babel-cli": "6.11.4",
     "babel-eslint": "6.1.2",
