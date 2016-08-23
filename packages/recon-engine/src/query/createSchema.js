@@ -209,11 +209,17 @@ function createSchema(
 
           // TODO: Fix
 
-          return all.filter(c => c.resolvedDeps.find(depC => depC.component && depC.component.id === component.id)).map(
-            c => c.resolvedDeps.filter(depC => depC.component && depC.component.id === component.id).map(depC => Object.assign({}, depC, {
-              component: c
-            }))
-          );
+          return flatten(all.filter(
+            c => c.resolvedDeps.find(
+              depC => depC.component && depC.component.id === component.id
+            )
+          ).map(
+            c => c.resolvedDeps.filter(
+              depC => depC.component && depC.component.id === component.id
+            ).map(
+              depC => Object.assign({}, depC, {component: c})
+            )
+          ));
         }
       },
       module: {
