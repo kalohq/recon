@@ -348,11 +348,64 @@ function pullComponents(ast, {globalId, definedIn}) {
   return [...components];
 }
 
+function getIdentifiers(ast) {
+  const identifiers = mutableArray();
+
+  const visitor = {
+    Identifier(path) {
+      identifiers.push(path.node);
+    },
+
+    noScope: true
+  };
+
+  traverse(ast, visitor);
+  return [...identifiers];
+}
+
+function getCallExpressions(ast) {
+  const callExpressions = mutableArray();
+
+  const visitor = {
+    CallExpression(path) {
+      callExpressions.push(path.node);
+    },
+
+    noScope: true
+  };
+
+  traverse(ast, visitor);
+  return [...callExpressions];
+}
+
+function getPotentialComponentPaths(symbols, components) {
+  return symbols.map(
+    sym => {
+      return T.isCallExpression(sym.type.__node)
+        ? {
+            name: sym.name,
+            enhancements: [sym.type.__node, ...getCallExpressions(sym.type.__node)],
+            targets: getIdentifiers(sym.type.__node).filter(
+              i => components.find(c => c.name === i.name)
+            ).map(
+              i => ({name: i.name, type: resolveType(i)})
+            )
+          }
+        : {targets: []};
+    }
+  ).filter(a => !!a.targets.length);
+}
+
 /* Pull info from an ast */
 function pullData(ast, opts) {
+  const symbols = pullSymbols(ast, opts);
+  const components = pullComponents(ast, opts);
+  const potentialComponentPaths = getPotentialComponentPaths(symbols, components);
+
   return {
-    symbols: pullSymbols(ast, opts),
-    components: pullComponents(ast, opts),
+    symbols,
+    components,
+    potentialComponentPaths
   };
 }
 

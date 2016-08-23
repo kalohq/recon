@@ -8,7 +8,6 @@ function containsJSX(path) {
   }
 
   let doesContainJSX = false;
-
   path.traverse({
     JSXElement(jsxPath) {
       doesContainJSX = true;
@@ -21,6 +20,9 @@ function containsJSX(path) {
 
 /** Is given path a react component declaration? */
 function isReactComponent(path) {
+
+  // TODO: Is there a stronger way of determining a "react component"?
+
   if (T.isClassDeclaration(path)) {
     return !!find(path.node.body.body, node => T.isClassMethod(node) && node.key.name === 'render');
   }

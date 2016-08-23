@@ -8,7 +8,10 @@
     dependencies {
       name,
       component {
-        id
+        id,
+        pathEnhancements {
+          type
+        }
       }
       usages {
         props {

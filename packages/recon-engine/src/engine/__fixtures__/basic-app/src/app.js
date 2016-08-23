@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Button from './button';
+import Notes from './notes';
 
 const users = [];
 
@@ -13,6 +14,7 @@ const App = ({users}) => (
       <Button>Add User</Button>
     </h2>
     <UserList users={users} />
+    <Notes parent="users" />
   </div>
 );
 

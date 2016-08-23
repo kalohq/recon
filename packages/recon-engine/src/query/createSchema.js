@@ -11,12 +11,16 @@ const {
   GraphQLNonNull
 } = require('graphql');
 
+// TODO: Roll in graphql-relay to make handling connections nicer
+
 const {
   flatten,
   map,
   groupBy,
   values,
-  find
+  find,
+  findLast,
+  last
 } = require('lodash');
 
 function defaultResolveModulePath(context, target) {
@@ -34,17 +38,19 @@ function createSchema(
   // TODO: Heavy memoizing strategy will be required
   // TODO: Need to generate uuid's for components
 
-  function getDOMComponent(name) {
+  function makeDOMComponent(name) {
     return {
       id: `__REACT_DOM::${name}`,
       name,
       node: null,
       enhancements: [],
-      props: [],
+      props: [], // TODO: Probably a standard definition somewhere?
       deps: [],
       definedIn: null
     };
   }
+
+  // RESOLUTION ---------------------------------------------------------------
 
   function allComponents() {
     return flatten(map(modules, m => m.data.components))
@@ -70,16 +76,36 @@ function createSchema(
     }
 
     if (localSymbol.type.type === 'ImportSpecifier') {
+      const nextModule = getModule(resolveModulePath(module.path, localSymbol.type.source));
+
+      if (!nextModule) {
+        return {
+          name,
+          module,
+          notFound: true
+        };
+      }
+
       return resolveSymbol(
         `export::${localSymbol.type.sourceName}`,
-        getModule(resolveModulePath(module.path, localSymbol.type.source))
+        nextModule
       );
     }
 
     if (localSymbol.type.type === 'ImportDefaultSpecifier') {
+      const nextModule = getModule(resolveModulePath(module.path, localSymbol.type.source));
+
+      if (!nextModule) {
+        return {
+          name,
+          module,
+          notFound: true
+        };
+      }
+
       return resolveSymbol(
         'export::default',
-        getModule(resolveModulePath(module.path, localSymbol.type.source))
+        nextModule
       );
     }
 
@@ -90,16 +116,41 @@ function createSchema(
   }
 
   function getComponentFromResolvedSymbol(resolvedSymbol) {
-    return find(resolvedSymbol.module.data.components,
+    const component = find(resolvedSymbol.module.data.components,
       c => c.name === resolvedSymbol.name
     );
+
+    if (component) {
+      return component;
+    }
+
+    const componentPath = find(
+      resolvedSymbol.module.data.potentialComponentPaths,
+      cp => cp.name === resolvedSymbol.name
+    );
+
+    // absolutely no paths :(
+    if (!componentPath) {
+      return null;
+    }
+
+    // Only taking the *last* potential component here. Really we should be
+    // able to offer all of them as potential components
+    const target = last(componentPath.targets);
+    const resolvedComponent = resolveComponentByName(target.name, resolvedSymbol.module);
+
+    // Does this break things by being path specific return value?
+    // Maybe not since within this module the given symbol would always have the same enhancement path.
+    return Object.assign({}, resolvedComponent, {
+      pathEnhancements: componentPath.enhancements
+    });
   }
 
   function resolveComponentByName(name, module) {
     // JSX Convention says if the identifier begins lowercase it is
     // a dom node rather than a custom component
     if (/^[a-z][a-z0-9]*/.test(name)) {
-      return getDOMComponent(name);
+      return makeDOMComponent(name);
     }
 
     const symbol = resolveSymbol(name, module);
@@ -140,6 +191,8 @@ function createSchema(
       )
     ));
   }
+
+  // SCHEMA -------------------------------------------------------------------
 
   const symbolType = new GraphQLObjectType({
     name: 'SymbolType',
@@ -189,6 +242,22 @@ function createSchema(
     })
   });
 
+  const componentEnhancementType = new GraphQLObjectType({
+    // TODO: Enhancements need a lot of work in general. need to decide what useful information we can provide
+    name: 'ComponentEnhancementType',
+    fields: () => ({
+      type: {type: GraphQLString},
+      callee: {
+        type: new GraphQLObjectType({
+          name: 'EnhanceCallee',
+          fields: () => ({
+            type: {type: GraphQLString}
+          })
+        })
+      },
+    })
+  });
+
   const componentType = new GraphQLObjectType({
     name: 'ComponentType',
     fields: () => ({
@@ -219,6 +288,13 @@ function createSchema(
             )
           ));
         }
+      },
+      enhancements: {
+        type: new GraphQLList(componentEnhancementType)
+      },
+      pathEnhancements: {
+        description: 'Contextual enhancements',
+        type: new GraphQLList(componentEnhancementType)
       },
       module: {
         type: moduleType,
