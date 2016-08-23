@@ -207,8 +207,6 @@ function createSchema(
         resolve: (component) => {
           const all = allResolvedComponents();
 
-          // TODO: Fix
-
           return flatten(all.filter(
             c => c.resolvedDeps.find(
               depC => depC.component && depC.component.id === component.id
