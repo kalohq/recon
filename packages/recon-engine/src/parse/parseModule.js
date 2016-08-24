@@ -12,7 +12,18 @@ function parseSource(moduleSource) {
       'jsx',
       'flow',
       'objectRestSpread',
-      // TODO: ALL plugins?
+      'asyncFunctions',
+      'classConstructorCall',
+      'doExpessions',
+      'trailingFunctionCommas',
+      'decorators',
+      'classProperties',
+      'exportExtentions',
+      'exponentiationOperator',
+      'asyncGenerators',
+      'functionBind',
+      'functionSent'
+      // keep up-to-date
     ]
   });
 }
@@ -20,11 +31,6 @@ function parseSource(moduleSource) {
 /* Return a new mutable array */
 function mutableArray(init) {
   return init ? new Array(...init) : new Array();
-}
-
-/* Return a new mutable object */
-function mutableObject(init) {
-  return init ? new Object(init) : new Object();
 }
 
 function resolveType(node, data = {}) {
@@ -39,7 +45,7 @@ function pullSymbols(ast) {
 
   function pushVariableDeclaration(node) {
     node.declarations.forEach(
-      node => pushVariableDeclarator(node)
+      declNode => pushVariableDeclarator(declNode)
     );
   }
 
@@ -64,10 +70,10 @@ function pullSymbols(ast) {
     });
   }
 
-  function pushExportSpecifier(node, {source} = {}) {
+  function pushExportSpecifier(node, {source, sourceName} = {}) {
     symbols.push({
       name: `export::${node.exported.name}`,
-      type: resolveType(node, {source})
+      type: resolveType(node, {source, sourceName})
     });
   }
 
@@ -84,9 +90,9 @@ function pullSymbols(ast) {
     } else if (T.isVariableDeclaration(node)) {
       pushVariableDeclaration(node);
       node.declarations.forEach(
-        node => symbols.push({
-          name: `export::${node.id.name}`,
-          type: resolveType(node.id)
+        declNode => symbols.push({
+          name: `export::${declNode.id.name}`,
+          type: resolveType(declNode.id)
         })
       );
     } else if (T.isClassDeclaration(node)) {
@@ -104,7 +110,7 @@ function pullSymbols(ast) {
     } else {
       const source = node.source ? node.source.value : undefined;
       node.specifiers.forEach(
-        node => pushExportSpecifier(node, {source})
+        spec => pushExportSpecifier(spec, {source, sourceName: spec.local.name})
       );
     }
   }
@@ -147,7 +153,7 @@ function pullSymbols(ast) {
         name: T.isIdentifier(spec.exported) ? spec.exported.value : spec.local.name,
         type: resolveType(spec, {source, sourceName: spec.local.name}),
       })
-    )
+    );
   }
 
   const visitor = {
@@ -169,7 +175,7 @@ function pullSymbols(ast) {
       }
       path.skip();
     },
-    ExportNamedDeclaration(path){
+    ExportNamedDeclaration(path) {
       pushExportNamedDeclaration(path.node);
       path.skip();
     },
@@ -199,24 +205,24 @@ function pullDeps(ast) {
       const name = path.node.openingElement.name.name;
 
       deps.push({
-        name: name,
+        name,
         selfClosing: path.node.openingElement.selfClosing,
         props: path.node.openingElement.attributes.map(
           attr => T.isJSXSpreadAttribute(attr)
             ? ({
-                name: '__spread',
-                type: resolveType(attr.argument)
-              })
+              name: '__spread',
+              type: resolveType(attr.argument)
+            })
             : ({
-                name: attr.name.name,
-                // TODO: see if we can find  union of possible values. Eg. color = someVar ? 'green' : 'red'
-                // TODO: for simple identifier types we could sometimes resolve to component prop types
-                type: T.isJSXExpressionContainer(attr.value)
-                  ? resolveType(attr.value.expression)
-                  : resolveType(attr.value)
-              })
+              name: attr.name.name,
+              // TODO: see if we can find  union of possible values. Eg. color = someVar ? 'green' : 'red'
+              // TODO: for simple identifier types we could sometimes resolve to component prop types
+              type: T.isJSXExpressionContainer(attr.value)
+                ? resolveType(attr.value.expression)
+                : resolveType(attr.value)
+            })
         )
-      })
+      });
     },
 
     noScope: true
@@ -227,7 +233,7 @@ function pullDeps(ast) {
 }
 
 /* Search declarations and references to see if prop types are defined (FLOW?) */
-function findProps(path) {
+function findProps(/* path */) {
   const props = mutableArray();
 
   // TODO: Pull static def from classes ie. static propTypes = {}
@@ -242,8 +248,8 @@ function findProps(path) {
  * Currently: is it considered "top level"? Ie. not in closures/constructors etc.
  */
 function shouldPullComponent(path) {
-  let tPath = path;
-  while (tPath = tPath.parentPath) {
+  let tPath = path.parentPath;
+  while (tPath) {
     if (T.isProgram(tPath)) {
       return true;
     }
@@ -255,6 +261,8 @@ function shouldPullComponent(path) {
     ) {
       break;
     }
+
+    tPath = tPath.parentPath;
   }
 
   return false;
@@ -275,10 +283,10 @@ function pullComponents(ast, {globalId, definedIn}) {
         // declarator in order to name it. As we traverse we can
         // also gather "enhancements"
         // TODO: Gather enhancements off of decorators
-        let tPath = path;
+        let tPath = path.parentPath;
         let name = null;
         const enhancements = mutableArray();
-        while (tPath = tPath.parentPath) {
+        while (tPath) {
           // yay! we found the variable
           if (T.isVariableDeclarator(tPath)) {
             if (!shouldPullComponent(tPath)) {
@@ -292,11 +300,13 @@ function pullComponents(ast, {globalId, definedIn}) {
           if (T.isCallExpression(tPath)) {
             enhancements.push(tPath.node);
           }
+
+          tPath = tPath.parentPath;
         }
 
         components.push({
           id: globalId(name),
-          name: name,
+          name,
           node: path.node,
           enhancements: [...enhancements],
           props: findProps(path),
@@ -383,14 +393,14 @@ function getPotentialComponentPaths(symbols, components) {
     sym => {
       return T.isCallExpression(sym.type.__node)
         ? {
-            name: sym.name,
-            enhancements: [sym.type.__node, ...getCallExpressions(sym.type.__node)],
-            targets: getIdentifiers(sym.type.__node).filter(
-              i => components.find(c => c.name === i.name)
-            ).map(
-              i => ({name: i.name, type: resolveType(i)})
-            )
-          }
+          name: sym.name,
+          enhancements: [sym.type.__node, ...getCallExpressions(sym.type.__node)],
+          targets: getIdentifiers(sym.type.__node).filter(
+            i => components.find(c => c.name === i.name)
+          ).map(
+            i => ({name: i.name, type: resolveType(i)})
+          )
+        }
         : {targets: []};
     }
   ).filter(a => !!a.targets.length);
@@ -415,13 +425,25 @@ function parseModule({path, src}) {
     return `${path}::${symbolName}`;
   }
 
-  const ast = parseSource(src);
-  const data = pullData(ast, {globalId, definedIn: path});
+  try {
+    const ast = parseSource(src);
+    const data = pullData(ast, {globalId, definedIn: path});
 
-  return {
-    path,
-    data
-  };
+    return {
+      path,
+      data
+    };
+  } catch (err) {
+    return {
+      err,
+      path,
+      data: {
+        symbols: [],
+        components: [],
+        potentialComponentPaths: [],
+      }
+    };
+  }
 }
 
 module.exports = parseModule;

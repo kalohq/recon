@@ -97,6 +97,13 @@ Soon.
 
 [Get in touch](http://twitter.com/chrisui) and we'll hook you up!
 
+### Contributing
+
+- Bugs? Submit a *Pull Request* with your code and a test which breaks.
+- Want to fix something or add a new feature? Our [Dev Guide](./docs/dev-guide.md) may help.
+
+For more details on all contributions see [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 ### License
 
 Apache 2.0

@@ -3,19 +3,19 @@
     path
   }
 
+  numComponents,
+
   components {
     name,
+    module {
+      path
+    },
     dependencies {
       name,
       component {
         id,
         pathEnhancements {
           type
-        }
-      }
-      usages {
-        props {
-          name
         }
       }
     },
@@ -28,7 +28,8 @@
       }
       usages {
         props {
-          name
+          name,
+          valueType
         }
       }
     }

@@ -5,10 +5,7 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-  GraphQLEnumType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull
+  GraphQLList
 } = require('graphql');
 
 // TODO: Roll in graphql-relay to make handling connections nicer
@@ -20,25 +17,27 @@ const {
   values,
   find,
   findLast,
-  last
+  last,
+  memoize,
+  join
 } = require('lodash');
 
-function defaultResolveModulePath(context, target) {
+const defaultResolveModulePaths = memoize(function (context, target) {
   const resolvedPath = Path.resolve(Path.dirname(context), target);
   return /\.[a-zA-Z0-9]$/.test(resolvedPath)
-    ? resolvedPath
-    : `${resolvedPath}.js`;
-}
+    ? [resolvedPath]
+    : [`${resolvedPath}.js`, `${resolvedPath}.jsx`, Path.join(resolvedPath, 'index.js')];
+}, join);
 
 function createSchema(
   modules,
-  {resolveModulePath = defaultResolveModulePath} = {}
+  {resolveModulePaths = defaultResolveModulePaths} = {}
 ) {
 
-  // TODO: Heavy memoizing strategy will be required
+  // TODO: Note current memoizing is just a way to make sure all the internals are working and will need to be changed for a strategy which will *actually* wrk as some modules update etc. (ie. support incremental builds not just one-time parse & query)
   // TODO: Need to generate uuid's for components
 
-  function makeDOMComponent(name) {
+  const makeDOMComponent = memoize(function(name) {
     return {
       id: `__REACT_DOM::${name}`,
       name,
@@ -48,19 +47,19 @@ function createSchema(
       deps: [],
       definedIn: null
     };
-  }
+  });
 
   // RESOLUTION ---------------------------------------------------------------
 
-  function allComponents() {
+  const allComponents = memoize(function () {
     return flatten(map(modules, m => m.data.components))
-  }
+  });
 
-  function getModule(path) {
-    return find(modules, m => m.path === path);
-  }
+  const getModule = memoize(function (paths) {
+    return find(modules, m => find(paths, path => path === m.path));
+  }, p => join(p));
 
-  function resolveSymbol(name, module) {
+  const resolveSymbol = memoize(function(name, module) {
     const localSymbol = module.data.symbols.find(s => s.name === name);
 
     if (!localSymbol) {
@@ -76,7 +75,7 @@ function createSchema(
     }
 
     if (localSymbol.type.type === 'ImportSpecifier') {
-      const nextModule = getModule(resolveModulePath(module.path, localSymbol.type.source));
+      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
 
       if (!nextModule) {
         return {
@@ -93,7 +92,7 @@ function createSchema(
     }
 
     if (localSymbol.type.type === 'ImportDefaultSpecifier') {
-      const nextModule = getModule(resolveModulePath(module.path, localSymbol.type.source));
+      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
 
       if (!nextModule) {
         return {
@@ -109,13 +108,30 @@ function createSchema(
       );
     }
 
+    if (localSymbol.type.type === 'ExportSpecifier') {
+      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
+
+      if (!nextModule) {
+        return {
+          name,
+          module,
+          notFound: true
+        };
+      }
+
+      return resolveSymbol(
+        `export::${localSymbol.type.sourceName}`,
+        nextModule
+      );
+    }
+
     return {
       name,
       module
     };
-  }
+  }, (n, m) => n + m.path);
 
-  function getComponentFromResolvedSymbol(resolvedSymbol) {
+  const getComponentFromResolvedSymbol = memoize(function(resolvedSymbol) {
     const component = find(resolvedSymbol.module.data.components,
       c => c.name === resolvedSymbol.name
     );
@@ -144,9 +160,9 @@ function createSchema(
     return Object.assign({}, resolvedComponent, {
       pathEnhancements: componentPath.enhancements
     });
-  }
+  }, s => s.name + s.module.path);
 
-  function resolveComponentByName(name, module) {
+  const resolveComponentByName = memoize(function(name, module) {
     // JSX Convention says if the identifier begins lowercase it is
     // a dom node rather than a custom component
     if (/^[a-z][a-z0-9]*/.test(name)) {
@@ -160,9 +176,9 @@ function createSchema(
     }
 
     return getComponentFromResolvedSymbol(symbol) || null;
-  }
+  }, (n, m) => n + m.path);
 
-  function resolveComponent(component, module) {
+  const resolveComponent = memoize(function(component, module) {
 
     // TODO: Need to track/resolve enhancement paths via usage
 
@@ -182,15 +198,31 @@ function createSchema(
     return Object.assign({}, component, {
       resolvedDeps
     });
-  }
+  }, (c, m) => c.id + m.path);
 
-  function allResolvedComponents() {
+  const allResolvedComponents = memoize(function() {
     return flatten(modules.map(
       module => module.data.components.map(
         component => resolveComponent(component, module)
       )
     ));
-  }
+  });
+
+  const resolveComponentDependants = memoize(function (component) {
+    const all = allResolvedComponents();
+
+    return flatten(all.filter(
+      c => c.resolvedDeps.find(
+        depC => depC.component && depC.component.id === component.id
+      )
+    ).map(
+      c => c.resolvedDeps.filter(
+        depC => depC.component && depC.component.id === component.id
+      ).map(
+        depC => Object.assign({}, depC, {component: c})
+      )
+    ));
+  }, c => c.id);
 
   // SCHEMA -------------------------------------------------------------------
 
@@ -220,7 +252,11 @@ function createSchema(
   const propUsageType = new GraphQLObjectType({
     name: 'PropUsageType',
     fields: () => ({
-      name: {type: GraphQLString}
+      name: {type: GraphQLString},
+      valueType: {
+        type: GraphQLString,
+        resolve: (prop) => prop.type.type
+      }
     })
   });
 
@@ -273,21 +309,7 @@ function createSchema(
       },
       dependants: {
         type: new GraphQLList(componentDependencyType),
-        resolve: (component) => {
-          const all = allResolvedComponents();
-
-          return flatten(all.filter(
-            c => c.resolvedDeps.find(
-              depC => depC.component && depC.component.id === component.id
-            )
-          ).map(
-            c => c.resolvedDeps.filter(
-              depC => depC.component && depC.component.id === component.id
-            ).map(
-              depC => Object.assign({}, depC, {component: c})
-            )
-          ));
-        }
+        resolve: resolveComponentDependants
       },
       enhancements: {
         type: new GraphQLList(componentEnhancementType)
@@ -298,9 +320,7 @@ function createSchema(
       },
       module: {
         type: moduleType,
-        resolve: (component) => {
-          return modules.find(m => m.path === component.definedIn)
-        }
+        resolve: (component) => modules.find(m => m.path === component.definedIn),
       }
     })
   });
@@ -319,6 +339,12 @@ function createSchema(
           type: new GraphQLList(moduleType),
           resolve() {
             return modules;
+          }
+        },
+        numComponents: {
+          type: GraphQLString,
+          resolve() {
+            return allComponents().length;
           }
         }
       })
