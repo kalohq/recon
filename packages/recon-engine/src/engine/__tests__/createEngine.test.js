@@ -16,14 +16,17 @@ function run(path) {
   });
 
   return new Promise((accept, reject) => {
-    setTimeout(() => { // TODO: Need some way of knowing when recon is working/ready :D
-      engine.runQuery(query).then(
-        result => {
-          expect(result).toMatch(output);
-          accept();
-        }
-      ).catch(err => reject(err));
-    }, 500);
+    engine.subscribe(stats => {
+      if (stats.numModules && stats.canQuery) {
+        engine.runQuery(query).then(
+          result => {
+            expect(result).toMatch(output);
+            accept();
+          },
+          err => reject(err)
+        );
+      }
+    });
   });
 }
 

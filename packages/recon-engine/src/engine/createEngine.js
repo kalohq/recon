@@ -1,67 +1,98 @@
 /* eslint-disable no-console */
-const glob = require('glob');
+const _glob = require('glob');
 const Path = require('path');
-const FS = require('fs');
+const Jetpack = require('fs-jetpack');
 const {graphql} = require('graphql');
+const {pull, forEach, values, filter, map} = require('lodash');
 
 const createSchema = require('../query/createSchema');
 const parseModule = require('../parse/parseModule');
 
+/** Promisified glob */
+function glob(pattern, opts) {
+  return new Promise((resolve, reject) => {
+    _glob(pattern, opts, (err, files) => {
+      return err ? reject(err) : resolve(files);
+    });
+  });
+}
+
+/** Create a new engine instance */
 function createEngine({files, cwd, resolveModulePaths} = {}) {
-  const modules = [];
+  const subscriptions = [];
+  const modules = {};
+  let hasFoundFiles = false;
 
-  glob(files, {cwd}, (error, foundFiles) => {
-    if (error) {
-      throw error;
-    }
+  // TODO: Cache parsed modules
+  // TODO: Add persisted/watching support
 
-    console.log(`Found ${foundFiles.length} modules`);
+  glob(files, {cwd}).then((foundFiles) => {
+    hasFoundFiles = true;
 
-    let numParsed = 0;
-    let numErrored = 0;
-    foundFiles.forEach(
-      file => {
-        const path = Path.join(cwd, file);
-        FS.readFile(path, {encoding: 'utf8'},
-          (err, src) => {
-            if (err) {
-              numParsed = numParsed + 1;
-              console.log(`Failed reading module: ${path}`);
-              throw err;
-            }
+    forEach(foundFiles, file => {
+      const path = Path.join(cwd, file);
+      const module = modules[file] = {ready: false, file, path};
+      send();
 
-            const module = {src, path, id: file};
-            numParsed = numParsed + 1;
-            console.log(`Parsing module: ${file} ...`);
-            const parsedModule = parseModule(module);
-            modules.push(parsedModule);
-            if (parsedModule.err) {
-              console.error(`Failed parsing module: ${path} (Original error: ${parsedModule.err.message})`);
-              numErrored = numErrored + 1;
-            } else {
-              console.log(`Parsed module: ${file} (${numParsed}/${foundFiles.length})`);
-            }
-
-            if (numParsed === foundFiles.length) {
-              console.log('---');
-              console.log(`Parsed ${numParsed} modules. Saw ${numErrored} errors!`);
-              console.log('---');
-            }
-          }
-        );
-      }
-    );
+      Jetpack.readAsync(path, 'utf8').then(
+        src => {
+          module.ready = true;
+          module.parsed = parseModule({src, path, id: file});
+          module.error = module.parsed.error;
+          send();
+        },
+        error => {
+          module.ready = true;
+          module.error = error;
+          send();
+        }
+      );
+    });
   });
 
-  const schema = createSchema(modules, {resolveModulePaths});
+  /** Get data for query/resolution stage */
+  function getData() {
+    return map(filter(values(modules), m => m.ready), m => m.parsed);
+  }
+
+  /** Get stats about the current state */
+  function getStats() {
+    const allModules = values(modules);
+    const readyModules = filter(allModules, m => m.ready);
+    const moduleErrors = map(filter(allModules, m => m.error), m => m.error);
+    return {
+      numModules: allModules.length,
+      numReadyModules: readyModules.length,
+      numErroredModules: moduleErrors.length,
+      moduleErrors,
+      canQuery: hasFoundFiles && allModules.length === readyModules.length,
+    };
+  }
 
   /* Run a graphql query against our store */
   function runQuery(query) {
-    console.log('Runnning query...');
+    // TODO: Have persistent schema and less aggressive memoizing within resolve. Ie. Not optimal to recreate for every invalidation.
+    const schema = createSchema(getData(), {resolveModulePaths});
     return graphql(schema, query);
   }
 
-  return {runQuery};
+  /**
+   * Push changes to subscribers
+   */
+  function send() {
+    forEach(subscriptions, func => func(getStats()));
+  }
+
+  /** Subscribe to changes */
+  function subscribe(func) {
+    subscriptions.push(func);
+    // return an unsubscribe function
+    return () => {
+      pull(subscriptions, [func]);
+    };
+  }
+
+  return {runQuery, subscribe};
 }
 
 module.exports = createEngine;

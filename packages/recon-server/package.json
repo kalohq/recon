@@ -8,14 +8,14 @@
     "components",
     "react"
   ],
-  "author": "Chris Pearce <hello@chrispearce.me>",
-  "license": "MIT",
+  "author": "Lystable Industries <chris.pearce@lystable.com>",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/recon-js/recon.git"
+    "url": "https://github.com/lystable/recon.git"
   },
   "bugs": {
-    "url": "https://github.com/recon-js/recon/issues"
+    "url": "https://github.com/lystable/recon/issues"
   },
-  "homepage": "https://github.com/recon-js/recon"
+  "homepage": "https://github.com/lystable/recon"
 }

@@ -530,9 +530,9 @@ function parseModule({path, src, id}) {
       path,
       data
     };
-  } catch (err) {
+  } catch (error) {
     return {
-      err,
+      error,
       path,
       data: {
         symbols: [],
