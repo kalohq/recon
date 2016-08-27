@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import List, {ListItem} from './list';
 import {createContainer, query as q} from 'api/recall';

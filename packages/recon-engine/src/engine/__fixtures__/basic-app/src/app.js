@@ -1,8 +1,10 @@
+/* eslint-disable */
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Button from './button';
 import Notes from './notes';
+import UserList from './user-list';
 
 const users = [];
 

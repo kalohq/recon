@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 const expect = require('expect');
 const api = require('../index');
 

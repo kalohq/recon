@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import {withState, compose} from 'recompose';
 import {createContainer} from 'recall';

@@ -1,9 +1,9 @@
 {
   "private": true,
   "scripts": {
-    "test:lint": "eslint **/src/**",
+    "test:lint": "eslint **/src/**/*.js",
     "test:type": "flow check",
-    "test:unit": "mocha **/src/**/__tests__/*.test.js",
+    "test:unit": "mocha **/src/**/__tests__/**/*.test.js",
     "pretest": "npm run build",
     "test": "npm run test:lint && npm run test:type && npm run test:unit",
     "build": "gulp build",

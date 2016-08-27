@@ -1,3 +1,4 @@
+/* eslint-disable */
 import imported from './imported';
 
 export class MyClass {}

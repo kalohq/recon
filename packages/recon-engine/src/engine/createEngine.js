@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const glob = require('glob');
 const Path = require('path');
 const FS = require('fs');
@@ -29,7 +30,7 @@ function createEngine({files, cwd, resolveModulePaths} = {}) {
               throw err;
             }
 
-            const module = {src, path};
+            const module = {src, path, id: file};
             numParsed = numParsed + 1;
             console.log(`Parsing module: ${file} ...`);
             const parsedModule = parseModule(module);
@@ -42,12 +43,12 @@ function createEngine({files, cwd, resolveModulePaths} = {}) {
             }
 
             if (numParsed === foundFiles.length) {
-              console.log('---')
+              console.log('---');
               console.log(`Parsed ${numParsed} modules. Saw ${numErrored} errors!`);
               console.log('---');
             }
           }
-        )
+        );
       }
     );
   });

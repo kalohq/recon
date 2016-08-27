@@ -1,46 +1,52 @@
 const T = require('babel-types');
 const {find} = require('lodash');
+const traverse = require('babel-traverse').default;
 
 /** Does a given function path contain JSX? */
-function containsJSX(path) {
-  if (T.isJSXElement(path)) {
+function containsJSX(node) {
+  if (T.isJSXElement(node)) {
     return true;
   }
 
   let doesContainJSX = false;
-  path.traverse({
-    JSXElement(jsxPath) {
-      doesContainJSX = true;
-      jsxPath.stop();
-    }
-  });
+  const visitor = {
+    ReturnStatement(jsxPath) {
+      if (T.isJSXElement(jsxPath.node.argument)) {
+        doesContainJSX = true;
+        jsxPath.stop();
+      }
+    },
 
+    noScope: true
+  };
+
+  traverse(node, visitor);
   return doesContainJSX;
 }
 
 /** Is given path a react component declaration? */
-function isReactComponent(path) {
+function isReactComponent(node) {
 
   // TODO: Is there a stronger way of determining a "react component"?
   // TODO: Accept React.createClass() (unless there is plans to deprecate in *near* future?)
 
-  if (T.isClassDeclaration(path)) {
-    return !!find(path.node.body.body, node => T.isClassMethod(node) && node.key.name === 'render');
+  if (T.isClassDeclaration(node)) {
+    return !!find(node.body.body, bNode => T.isClassMethod(bNode) && bNode.key.name === 'render');
   }
 
-  if (T.isFunctionDeclaration(path)) {
-    return containsJSX(path.get('body'));
+  if (T.isFunctionDeclaration(node)) {
+    return containsJSX(node.body);
   }
 
-  if (T.isFunctionExpression(path)) {
-    return containsJSX(path.get('body'));
+  if (T.isFunctionExpression(node)) {
+    return containsJSX(node.body);
   }
 
-  if (T.isArrowFunctionExpression(path)) {
-    return containsJSX(path.get('body'));
+  if (T.isArrowFunctionExpression(node)) {
+    return containsJSX(node.body);
   }
 
   return false;
 }
 
-exports.default = isReactComponent;
+module.exports = isReactComponent;

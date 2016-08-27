@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import PropTypes from 'utils/prop-types';
 import {compose, withReducer, branch} from 'recompose';

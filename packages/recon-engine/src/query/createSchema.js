@@ -1,7 +1,7 @@
+/* eslint-disable no-use-before-define */
 const Path = require('path');
 
 const {
-  graphql,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
@@ -16,13 +16,12 @@ const {
   groupBy,
   values,
   find,
-  findLast,
   last,
   memoize,
   join
 } = require('lodash');
 
-const defaultResolveModulePaths = memoize(function (context, target) {
+const defaultResolveModulePaths = memoize((context, target) => {
   const resolvedPath = Path.resolve(Path.dirname(context), target);
   return /\.[a-zA-Z0-9]$/.test(resolvedPath)
     ? [resolvedPath]
@@ -34,16 +33,16 @@ function createSchema(
   {resolveModulePaths = defaultResolveModulePaths} = {}
 ) {
 
-  // TODO: Note current memoizing is just a way to make sure all the internals are working and will need to be changed for a strategy which will *actually* wrk as some modules update etc. (ie. support incremental builds not just one-time parse & query)
-  // TODO: Need to generate uuid's for components
+  // TODO: Need to invalidate memoizing as modules are re-parsed
 
-  const makeDOMComponent = memoize(function(name) {
+  const makeDOMComponent = memoize((name) => {
+    // TODO: We should *probably* have resolved these within parse when we see a dom reference?
     return {
       id: `__REACT_DOM::${name}`,
       name,
       node: null,
       enhancements: [],
-      props: [], // TODO: Probably a standard definition somewhere?
+      props: [], // TODO: Probably a standard definition somewhere of dom attributes?
       deps: [],
       definedIn: null
     };
@@ -51,15 +50,15 @@ function createSchema(
 
   // RESOLUTION ---------------------------------------------------------------
 
-  const allComponents = memoize(function () {
-    return flatten(map(modules, m => m.data.components))
+  const allComponents = memoize(() => {
+    return flatten(map(modules, m => m.data.components));
   });
 
-  const getModule = memoize(function (paths) {
+  const getModule = memoize((paths) => {
     return find(modules, m => find(paths, path => path === m.path));
   }, p => join(p));
 
-  const resolveSymbol = memoize(function(name, module) {
+  const resolveSymbol = memoize((name, module) => {
     const localSymbol = module.data.symbols.find(s => s.name === name);
 
     if (!localSymbol) {
@@ -131,7 +130,7 @@ function createSchema(
     };
   }, (n, m) => n + m.path);
 
-  const getComponentFromResolvedSymbol = memoize(function(resolvedSymbol) {
+  const getComponentFromResolvedSymbol = memoize((resolvedSymbol) => {
     const component = find(resolvedSymbol.module.data.components,
       c => c.name === resolvedSymbol.name
     );
@@ -162,7 +161,7 @@ function createSchema(
     });
   }, s => s.name + s.module.path);
 
-  const resolveComponentByName = memoize(function(name, module) {
+  const resolveComponentByName = memoize((name, module) => {
     // JSX Convention says if the identifier begins lowercase it is
     // a dom node rather than a custom component
     if (/^[a-z][a-z0-9]*/.test(name)) {
@@ -178,7 +177,7 @@ function createSchema(
     return getComponentFromResolvedSymbol(symbol) || null;
   }, (n, m) => n + m.path);
 
-  const resolveComponent = memoize(function(component, module) {
+  const resolveComponent = memoize((component, module) => {
 
     // TODO: Need to track/resolve enhancement paths via usage
 
@@ -200,7 +199,7 @@ function createSchema(
     });
   }, (c, m) => c.id + m.path);
 
-  const allResolvedComponents = memoize(function() {
+  const allResolvedComponents = memoize(() => {
     return flatten(modules.map(
       module => module.data.components.map(
         component => resolveComponent(component, module)
@@ -208,7 +207,7 @@ function createSchema(
     ));
   });
 
-  const resolveComponentDependants = memoize(function (component) {
+  const resolveComponentDependants = memoize((component) => {
     const all = allResolvedComponents();
 
     return flatten(all.filter(

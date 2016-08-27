@@ -1,13 +1,12 @@
 /* eslint-env node, mocha */
-/*
-import expect from 'expect';
-import * as Babylon from 'babylon';
-import traverse from 'babel-traverse';
+const expect = require('expect');
+const Babylon = require('babylon');
+const traverse = require('babel-traverse').default;
 
-import isReactComponent from '../isReactComponent';
+const isReactComponent = require('../isReactComponent');
 
 function parse(type, code) {
-  let first;
+  let found;
 
   const ast = Babylon.parse(code, {
     plugins: [
@@ -19,48 +18,52 @@ function parse(type, code) {
 
   traverse(ast, {
     [type]: function find(path) {
-      first = path;
+      found = path.node;
       path.stop();
     }
   });
 
-  return first;
+  return found;
 }
 
 describe('utils/react/isReactComponent', () => {
 
-  it('should give the correct answer', () => {
-    const pathA = parse('ClassDeclaration', `class MyComponent {
+  it('should identify class components', () => {
+    const node = parse('ClassDeclaration', `class MyComponent {
       render() {}
     }`);
-    expect(isReactComponent(pathA)).toBe(true);
+    expect(isReactComponent(node)).toBe(true);
+  });
 
-    const pathB = parse('FunctionDeclaration', `function MyComponent() {
+  it('should identify function declarations', () => {
+    const node = parse('FunctionDeclaration', `function MyComponent() {
       return <div>Test</div>;
     }`);
-    expect(isReactComponent(pathB)).toBe(true);
+    expect(isReactComponent(node)).toBe(true);
+  });
 
-    const pathC = parse('FunctionExpressoion', `const MyComponent = function() {
+  it('should identify function expressions', () => {
+    const node = parse('FunctionExpression', `const MyComponent = function() {
       return <div>Test</div>;
     }`);
-    expect(isReactComponent(pathC)).toBe(true);
+    expect(isReactComponent(node)).toBe(true);
+  });
 
-    const pathD = parse('ArrowFunctionExpression', `const MyComponent = () => <div>Test</div>;`);
-    expect(isReactComponent(pathD)).toBe(true);
+  it('should identify arrow function expressions', () => {
+    const node = parse('ArrowFunctionExpression', `const MyComponent = () => <div>Test</div>;`);
+    expect(isReactComponent(node)).toBe(true);
+  });
 
-    const pathE = parse('ArrowFunctionExpression', `const MyComponent = () => true;`);
-    expect(isReactComponent(pathE)).toBe(false);
+  it('should NOT identify arrow function expressions without JSX', () => {
+    const node = parse('ArrowFunctionExpression', `const MyComponent = () => true;`);
+    expect(isReactComponent(node)).toBe(false);
+  });
 
-    const pathF = parse('FunctionDeclaration', `function MyComponent() {
+  it('should NOT identify function declarations without JSX', () => {
+    const node = parse('FunctionDeclaration', `function MyComponent() {
       return null;
     }`);
-    expect(isReactComponent(pathF)).toBe(false);
-
-    const pathG = parse('FunctionExpression', `const Wow = function MyComponent() {
-      return <div>sup</div>;
-    };`);
-    expect(isReactComponent(pathG)).toBe(true);
+    expect(isReactComponent(node)).toBe(false);
   });
 
 });
-*/

@@ -6,6 +6,7 @@
   numComponents,
 
   components {
+    id,
     name,
     module {
       path
@@ -17,6 +18,12 @@
         pathEnhancements {
           type
         }
+      },
+      usages {
+        props {
+          name,
+          valueType
+        }
       }
     },
     dependants {
@@ -24,7 +31,6 @@
       component {
         id,
         name,
-        name
       }
       usages {
         props {

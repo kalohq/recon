@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 const expect = require('expect');
 const Path = require('path');
 const FS = require('fs');
@@ -18,13 +19,12 @@ function run(path) {
     setTimeout(() => { // TODO: Need some way of knowing when recon is working/ready :D
       engine.runQuery(query).then(
         result => {
-          console.log(JSON.stringify(result, null, 2));
           expect(result).toMatch(output);
           accept();
         }
       ).catch(err => reject(err));
     }, 500);
-  })
+  });
 }
 
 describe('react-engine::engine/createEngine', () => {
