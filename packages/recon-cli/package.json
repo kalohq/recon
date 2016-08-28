@@ -1,6 +1,6 @@
 {
   "name": "recon-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A commandline interface for wielding the power of Recon.",
   "main": "src/index.js",
   "keywords": [
@@ -20,9 +20,9 @@
   "homepage": "https://github.com/lystable/recon",
   "dependencies": {
     "lodash": "^4.15.0",
-    "recon-config": "*",
-    "recon-engine": "*",
-    "recon-stats": "*",
+    "recon-config": "^0.0.2",
+    "recon-engine": "^0.0.2",
+    "recon-stats": "^0.0.2",
     "vorpal": "^1.11.4"
   }
 }

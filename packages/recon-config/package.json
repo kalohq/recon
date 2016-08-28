@@ -1,6 +1,6 @@
 {
   "name": "recon-config",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An api for discovering and reading config for recon.",
   "main": "src/index.js",
   "keywords": [
