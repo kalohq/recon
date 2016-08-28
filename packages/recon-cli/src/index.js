@@ -57,9 +57,10 @@ vorpal
   .description('Prints a bunch of stats about your application')
   .action(args => spawnEngine({files: args.files}).then(pullStats).then(dumpStats));
 
-
-// final setup
-vorpal
-  .delimiter('recon$')
-  .parse(process.argv)
-  .show();
+// final setup - either user wants interactive mode or is just running a command
+const parsedArgs = vorpal.parse(process.argv, {use: 'minimist'});
+if (parsedArgs._[0] === 'interactive') {
+  vorpal.delimiter('recon$').show();
+} else {
+  vorpal.parse(parsedArgs._);
+}
