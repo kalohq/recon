@@ -1,7 +1,7 @@
 {
-  "name": "recon-server",
+  "name": "recon-stats",
   "version": "0.0.1",
-  "description": "A GraphQL server for querying the Recon Engine.",
+  "description": "Generate stats from recon intelligence",
   "main": "src/index.js",
   "keywords": [
     "intellisense",
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/lystable/recon/issues"
   },
-  "homepage": "https://github.com/lystable/recon"
+  "homepage": "https://github.com/lystable/recon",
+  "dependencies": {
+    "lodash": "^4.15.0"
+  }
 }

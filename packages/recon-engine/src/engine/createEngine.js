@@ -18,7 +18,7 @@ function glob(pattern, opts) {
 }
 
 /** Create a new engine instance */
-function createEngine({files, cwd, resolveModulePaths} = {}) {
+function createEngine({files, cwd = process.cwd(), resolveModulePaths} = {}) {
   const subscriptions = [];
   const modules = {};
   let hasFoundFiles = false;
