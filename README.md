@@ -27,12 +27,13 @@ any data which may be useful (eg. Props, component dependencies, enhancements et
 graphql query interface is exposed allowing you to explore your applications in an incredibly
 intuitive manner!
 
-Checking out our [test fixtures](./packages/recon-engine/src/engine/__fixtures/) is a
+Checking out our [test fixtures](./packages/recon-engine/src/engine/__fixtures__/) is a
 great place to an example of this.
 
 Once this data is consolidated the possibility of tools to be built on top are *endless*!
 
-### Getting Started
+Getting Started
+---------------
 
 The first thing you're going to want to do is create a new config file `.reconrc` in the working directory
 of your project.
@@ -54,7 +55,7 @@ Eg.
 Configuration is pretty basic at the moment but options are documented
 [here](./packages/recon-config/README.md).
 
-##### Show me the power!
+#### Show me the power!
 
 For the majority of people just looking to see what data they can pull out of their application
 our interactive cli will be *the* place to look.
@@ -65,10 +66,17 @@ Firstly install with
 npm install -g recon-cli
 ```
 
-Now, within your application working directory, run `recon`. You are now inside Recon! :O
+Now, within your application working directory, simply run
+
+```
+recon
+```
+
+You are now *inside* Recon! :O
+
 From this point forwards the entire power of Recon should be just a `help` command away.
 
-Hint: Start off by trying `stats` first. Then if you're feeling adventurous give `server` a go.
+*Hint: Start off by trying `stats` first. Then if you're feeling adventurous give `server` a go.*
 
 ### I want to integrate Recon into my tool
 
@@ -79,13 +87,15 @@ possible.
 Most likely you'll want to look at using `recon-engine` and `recon-server` (their tests are a decent
 place to start looking).
 
-### Contributing
+Contributing
+------------
 
-- Bugs? Please submit a *Pull Request* with your code and a test which breaks.
+- Bugs? Please submit a *Pull Request* with your minimal source code and a test which breaks.
 - Want to fix something or add a new feature? Get started with our [Dev Guide](./docs/dev-guide.md)!
 
 For more details on all contributions see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
-### License
+License
+-------
 
 Apache 2.0
