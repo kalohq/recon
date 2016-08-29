@@ -124,6 +124,7 @@ High-level Roadmap
 - [ ] Work on documentation and integrations for developer tools
 - [ ] Performance optimisations
 - [ ] Identify critical paths
+- [ ] Explore using Flow for internal type resolution
 
 License
 -------
