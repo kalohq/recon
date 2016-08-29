@@ -1,6 +1,6 @@
 {
   "name": "recon-cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A commandline interface for wielding the power of Recon.",
   "main": "src/index.js",
   "keywords": [
@@ -21,8 +21,8 @@
   "dependencies": {
     "lodash": "^4.15.0",
     "progress": "^1.1.8",
-    "recon-config": "^0.0.3",
-    "recon-engine": "^0.0.3",
+    "recon-config": "^0.0.4",
+    "recon-engine": "^0.0.4",
     "recon-server": "^0.0.3",
     "recon-stats": "^0.0.3",
     "vorpal": "^1.11.4"
