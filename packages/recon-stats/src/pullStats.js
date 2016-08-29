@@ -1,5 +1,5 @@
-const makeStats = require('./makeStats');
 const Jetpack = require('fs-jetpack');
+const makeStats = require('./makeStats');
 
 /** Given a recon-engine instance pull stats */
 function pullStats(engine) {

@@ -1,8 +1,10 @@
+/*
 const Path = require('path');
 
 function relPath(rel) {
   return Path.resolve(__dirname, rel);
 }
+*/
 
 module.exports = {
   data: {

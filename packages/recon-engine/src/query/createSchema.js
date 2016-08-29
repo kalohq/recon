@@ -1,6 +1,4 @@
 /* eslint-disable no-use-before-define */
-const Path = require('path');
-
 const {
   GraphQLSchema,
   GraphQLObjectType,
@@ -18,44 +16,43 @@ const {
   find,
   last,
   memoize,
-  join
+  join,
+  filter,
 } = require('lodash');
 
-const defaultResolveModulePaths = memoize((context, target) => {
-  const resolvedPath = Path.resolve(Path.dirname(context), target);
-  return /\.[a-zA-Z0-9]$/.test(resolvedPath)
-    ? [resolvedPath]
-    : [`${resolvedPath}.js`, `${resolvedPath}.jsx`, Path.join(resolvedPath, 'index.js')];
-}, join);
+const makeDOMComponent = memoize((name) => {
+  // TODO: We should *probably* have resolved these within parse when we see a dom reference?
+  return {
+    id: `__REACT_DOM::${name}`,
+    name,
+    node: null,
+    enhancements: [],
+    props: [], // TODO: Probably a standard definition somewhere of dom attributes?
+    deps: [],
+    definedIn: null
+  };
+});
 
 function createSchema(
-  modules,
-  {resolveModulePaths = defaultResolveModulePaths} = {}
+  dataSource,
+  {resolveModulePaths}
 ) {
 
-  // TODO: Need to invalidate memoizing as modules are re-parsed
-
-  const makeDOMComponent = memoize((name) => {
-    // TODO: We should *probably* have resolved these within parse when we see a dom reference?
-    return {
-      id: `__REACT_DOM::${name}`,
-      name,
-      node: null,
-      enhancements: [],
-      props: [], // TODO: Probably a standard definition somewhere of dom attributes?
-      deps: [],
-      definedIn: null
-    };
-  });
+  // TODO: Need to invalidate memoizing as modules are re-parsed (ie. support persisted engine)
 
   // RESOLUTION ---------------------------------------------------------------
 
+  /** Get data for query/resolution stage */
+  const getModules = memoize(() => {
+    return map(filter(values(dataSource), m => m.ready), m => m.parsed);
+  });
+
   const allComponents = memoize(() => {
-    return flatten(map(modules, m => m.data.components));
+    return flatten(map(getModules(), m => m.data.components));
   });
 
   const getModule = memoize((paths) => {
-    return find(modules, m => find(paths, path => path === m.path));
+    return find(getModules(), m => find(paths, path => path === m.path));
   }, p => join(p));
 
   const resolveSymbol = memoize((name, module) => {
@@ -200,7 +197,7 @@ function createSchema(
   }, (c, m) => c.id + m.path);
 
   const allResolvedComponents = memoize(() => {
-    return flatten(modules.map(
+    return flatten(getModules().map(
       module => module.data.components.map(
         component => resolveComponent(component, module)
       )
@@ -319,7 +316,7 @@ function createSchema(
       },
       module: {
         type: moduleType,
-        resolve: (component) => modules.find(m => m.path === component.definedIn),
+        resolve: (component) => getModules().find(m => m.path === component.definedIn),
       }
     })
   });
@@ -337,7 +334,7 @@ function createSchema(
         modules: {
           type: new GraphQLList(moduleType),
           resolve() {
-            return modules;
+            return getModules();
           }
         },
         numComponents: {

@@ -7,6 +7,8 @@ and contains several packages. These are:
 - [recon-engine](../packages/recon-engine) - The powerhouse behind Recon. Parses, structures and provides a query interface.
 - [recon-server](../packages/recon-server) - A simple http server which spawns the engine and provides a http graphql interface.
 - [recon-cli](../packages/recon-cli) - Command line interface for quickly working with Recon as opposed to using the programmatic api's.
+- [recon-config](../packages/recon-config) - Recon configuration management (reads .rc file etc.)
+- [recon-stats](../packages/recon-stats) - Generate useful and interesting stats about an application
 
 ## The code
 

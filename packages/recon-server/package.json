@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/lystable/recon/issues"
   },
-  "homepage": "https://github.com/lystable/recon"
+  "homepage": "https://github.com/lystable/recon",
+  "dependencies": {
+    "express": "^4.14.0",
+    "express-graphql": "^0.5.4",
+    "graphql": "^0.7.0"
+  }
 }

@@ -20,9 +20,14 @@
   "homepage": "https://github.com/lystable/recon",
   "dependencies": {
     "lodash": "^4.15.0",
+    "progress": "^1.1.8",
     "recon-config": "^0.0.2",
     "recon-engine": "^0.0.2",
+    "recon-server": "^0.0.2",
     "recon-stats": "^0.0.2",
     "vorpal": "^1.11.4"
+  },
+  "bin": {
+    "recon": "./src/index.js"
   }
 }
