@@ -3,6 +3,7 @@ const vorpal = require('vorpal')();
 const {forEach, padEnd, isArray, map, join, take, max, memoize} = require('lodash');
 const ProgressBar = require('progress');
 const dedent = require('dedent');
+const jetpack = require('fs-jetpack');
 
 const {createConfig} = require('recon-config');
 const {createEngine} = require('recon-engine');
@@ -38,7 +39,13 @@ const getEngine = memoize(() => new Promise((accept) => {
       bar.update(stats.numReadyModules ? stats.numReadyModules / stats.numModules : 0);
     }
     if (stats.canQuery) {
-      act.log(`Parsed ${stats.numModules} modules. Saw ${stats.numErroredModules} errors!`);
+      act.log(`Parsed ${stats.numModules} modules.`);
+      if (stats.numErroredModules) {
+        act.log('');
+        act.log(chalk.bold(`Saw ${stats.numErroredModules} errors while parsing:`));
+        map(stats.moduleErrors, (m, i) => act.log(chalk.red(`${i + 1}. ${m.error.message} <${m.path}>`)));
+        act.log('');
+      }
       accept(createdEngine);
     }
   });
@@ -51,9 +58,10 @@ const getEngine = memoize(() => new Promise((accept) => {
 
 
 /** Given recon stats, dump them to the user */
-function dumpStats(stats, {numRows = 20} = {}) {
+function logStats(stats, {numRows = 20} = {}) {
   const act = vorpal.activeCommand;
   const SEP = ' | ';
+  act.log('');
   forEach(stats, stat => {
     act.log(chalk.bold(stat.title));
     act.log(chalk.italic.dim(stat.description));
@@ -93,12 +101,13 @@ function pullStats(engine) {
 vorpal
   .command('stats', 'Prints statistics about your React application')
   .option('--numRows', 'Max number of rows to display within printed stats')
-  .action(args => getEngine().then(pullStats).then(s => dumpStats(s, args.options)));
+  .action(args => getEngine().then(pullStats).then(s => logStats(s, args.options)));
 
 
 // ----------------------------------------------------------------------------
 // Server
 // ----------------------------------------------------------------------------
+
 
 /** Current running server */
 let runningServer = null;
@@ -143,6 +152,23 @@ vorpal
   .command('server stop', 'Kill the current recon server')
   .alias('server kill')
   .action(() => killServer());
+
+
+// ----------------------------------------------------------------------------
+// Debug
+// ----------------------------------------------------------------------------
+
+
+/** Dump data from engine to disk */
+function dumpDebug(engine) {
+  vorpal.activeCommand.log('Dumping debug information...');
+  jetpack.write('recon-dump.json', engine._debug({raw: false}), {jsonIndent: 0});
+  vorpal.activeCommand.log('Dumped successfully to recon-dump.json');
+}
+
+vorpal
+  .command('dump', 'Dump debug information')
+  .action(() => getEngine().then(dumpDebug));
 
 
 // final setup - either user wants interactive mode or is just running a command

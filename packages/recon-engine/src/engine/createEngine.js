@@ -12,6 +12,8 @@ const {
   memoize,
   join,
   flatten,
+  merge,
+  cloneDeepWith,
 } = require('lodash');
 
 const createSchema = require('../query/createSchema');
@@ -89,7 +91,10 @@ function createEngine({files, cwd = process.cwd(), resolve}) {
   function getStats() {
     const allModules = values(modules);
     const readyModules = filter(allModules, m => m.ready);
-    const moduleErrors = map(filter(allModules, m => m.error), m => m.error);
+    const moduleErrors = map(filter(allModules, m => m.error), m => ({
+      path: m.path,
+      error: m.error,
+    }));
     return {
       numModules: allModules.length,
       numReadyModules: readyModules.length,
@@ -124,7 +129,20 @@ function createEngine({files, cwd = process.cwd(), resolve}) {
     };
   }
 
-  return {runQuery, subscribe, schema};
+  /** get debug information */
+  function _debug({raw = true}) {
+    if (raw) {
+      return {modules};
+    }
+
+    // exclude ast nodes from debug output (just track source location)
+    const ignoreAstNodes = (v, k) => k === '__node' ? v.loc : undefined;
+
+    const strippedModules = cloneDeepWith(modules, ignoreAstNodes);
+    return {modules: strippedModules};
+  }
+
+  return {runQuery, subscribe, schema, _debug};
 }
 
 module.exports = createEngine;

@@ -93,6 +93,8 @@ possible.
 Most likely you'll want to look at using `recon-engine` and `recon-server` (their tests are a decent
 place to start looking).
 
+> Disclaimer: This is a very early preview of Recon and you should expect breaking changes within the <v1 range of releases.
+
 Contributing
 ------------
 

@@ -28,3 +28,5 @@ be used by or use a component. It is recommended to exclude any meta files such 
   }
 }
 ```
+
+> Note: If you make changes to your project config file you must restart your `recon` cli!
