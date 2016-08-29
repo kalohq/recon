@@ -63,20 +63,24 @@ our interactive cli will be *the* place to look.
 Firstly install with
 
 ```
-npm install -g recon-cli
+$ npm install -g recon-cli
 ```
 
 Now, within your application working directory, simply run
 
 ```
-recon
+$ recon
 ```
 
 You are now *inside* Recon! :O
 
 From this point forwards the entire power of Recon should be just a `help` command away.
 
-*Hint: Start off by trying `stats` first. Then if you're feeling adventurous give `server` a go.*
+```
+recon$ help
+```
+
+> Hint: Why not start off by trying `stats`. Then if you're feeling *extra* adventurous give `server` a go.
 
 ### I want to integrate Recon into my tool
 
