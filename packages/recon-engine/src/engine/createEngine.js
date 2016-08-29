@@ -12,7 +12,6 @@ const {
   memoize,
   join,
   flatten,
-  merge,
   cloneDeepWith,
 } = require('lodash');
 
