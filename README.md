@@ -35,7 +35,7 @@ Once this data is consolidated the possibility of tools to be built on top are *
 Getting Started
 ---------------
 
-Prerequisites: `Node >v6`, Using `import/export` syntax
+Prerequisites: `Node >v6`, using `import/export` syntax, using JSX (see roadmap for full list)
 
 The first thing you're going to want to do is create a new config file `.reconrc` in the working directory
 of your project.
@@ -111,6 +111,7 @@ High-level Roadmap
 - [ ] Broader React usage support
   - [ ] React.createClass, React.createElement, hyperscript
   - [ ] Support decorator syntax as enhancements
+  - [ ] Support `require('module')`
 - [ ] Better prop usage information
   - [ ] Pull out static values (eg. prop="stringValue")
   - [ ] Resolve basic flows to determine *possible* values (upto prop types)
