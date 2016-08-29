@@ -20,7 +20,7 @@ and isolate points for optimisation.
 On top of this the raw information Recon provides gives a strong base for creating tools
 (such as living styleguides) which may need to plug in to component meta data.
 
-#### How?
+### How?
 
 The core of Recon revolves around `recon-engine`. This engine parses your application pulling out
 any data which may be useful (eg. Props, component dependencies, enhancements etc.). Then a
@@ -35,6 +35,8 @@ Once this data is consolidated the possibility of tools to be built on top are *
 Getting Started
 ---------------
 
+Prerequisites: `Node >v6`, Using `import/export` syntax
+
 The first thing you're going to want to do is create a new config file `.reconrc` in the working directory
 of your project.
 
@@ -42,7 +44,7 @@ Eg.
 
 ```json
 {
-	"files": "src/**/!(*-test|*-tests|*.manifest).js*",
+  "files": "src/**/!(*-test|*-tests|*.manifest).js*",
   "resolve": {
     "roots": [
       "src/core",
@@ -82,7 +84,7 @@ recon$ help
 
 > Hint: Why not start off by trying `stats`. Then if you're feeling *extra* adventurous give `server` a go.
 
-### I want to integrate Recon into my tool
+### I want to integrate Recon into x
 
 Documentation is going to be a little skimpy here for a while since we are planning on getting
 the internals of `recon-engine` to be as powerful as possible and stabilising the api as much as
@@ -98,6 +100,27 @@ Contributing
 - Want to fix something or add a new feature? Get started with our [Dev Guide](./docs/dev-guide.md)!
 
 For more details on all contributions see [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+High-level Roadmap
+------------------
+
+- [ ] Identify initial parsing issues within across many codebases
+  - [ ] Improve test `.toMatch` to not care about ordering (ie. add `toMatchUnordered`)
+  - [ ] Provide better DX for dumping debug data and reporting issues
+- [ ] Pull prop type definitions from components
+- [ ] Broader React usage support
+  - [ ] React.createClass, React.createElement, hyperscript
+  - [ ] Support decorator syntax as enhancements
+- [ ] Better prop usage information
+  - [ ] Pull out static values (eg. prop="stringValue")
+  - [ ] Resolve basic flows to determine *possible* values (upto prop types)
+  - [ ] Resolve rest/spread props
+- [ ] More trivial meta data! (eg. docblocks)
+- [ ] Stabilise graphql interface
+- [ ] Support long-running persisted engine (ie. watch file changes)
+- [ ] Work on documentation and integrations for developer tools
+- [ ] Performance optimisations
+- [ ] Identify critical paths
 
 License
 -------
