@@ -1,6 +1,6 @@
 {
   "name": "recon-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A GraphQL server for querying the Recon Engine.",
   "main": "src/index.js",
   "keywords": [
