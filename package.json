@@ -23,6 +23,7 @@
     "eslint-config-airbnb": "10.0.1",
     "eslint-config-lystable": "5.0.0",
     "eslint-plugin-flow-vars": "0.5.0",
+    "eslint-plugin-import": "1.13.0",
     "eslint-plugin-react": "6.1.2",
     "expect": "1.20.2",
     "flow-bin": "^0.30.0",
