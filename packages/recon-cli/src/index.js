@@ -175,6 +175,7 @@ vorpal
 // final setup - either user wants interactive mode or is just running a command
 const parsedArgs = vorpal.parse(process.argv, {use: 'minimist'});
 if (!parsedArgs._) {
+  // TODO: display working project? Ie. recon:my-app$
   vorpal.delimiter('recon$').show();
 } else {
   vorpal.parse(parsedArgs._);

@@ -106,7 +106,7 @@ For more details on all contributions see [CONTRIBUTING.md](./CONTRIBUTING.md)
 High-level Roadmap
 ------------------
 
-- [ ] Identify initial parsing issues within across many codebases
+- [ ] Identify initial parsing issues across many codebases
   - [ ] Improve test `.toMatch` to not care about ordering (ie. add `toMatchUnordered`)
   - [ ] Provide better DX for dumping debug data and reporting issues
 - [ ] Pull prop type definitions from components
@@ -122,8 +122,10 @@ High-level Roadmap
 - [ ] Stabilise graphql interface
 - [ ] Support long-running persisted engine (ie. watch file changes)
 - [ ] Work on documentation and integrations for developer tools
-- [ ] Performance optimisations
-- [ ] Identify critical paths
+- [ ] Explore plugin api
+- [ ] Reassess and tidy implementation
+  - [ ] Performance optimisations
+- [ ] Identify application critical paths
 - [ ] Explore using Flow for internal type resolution
 
 License
