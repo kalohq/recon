@@ -5,23 +5,23 @@ module.exports = {
       {
         name: 'FunctionalComponent',
         deps: [
-          {name: 'div'}
-        ]
+          {name: 'div'},
+        ],
       },
       {
         name: 'ArrowFunctionalComponent',
         deps: [
-          {name: 'div'}
-        ]
+          {name: 'div'},
+        ],
       },
       {
         name: 'EnhancedArrowFunctionalComponent',
         deps: [
-          {name: 'div'}
+          {name: 'div'},
         ],
         enhancements: [
-          {type: 'CallExpression'}
-        ]
+          {type: 'CallExpression'},
+        ],
       },
       {
         name: 'ClassComponent',
@@ -32,12 +32,12 @@ module.exports = {
             props: [
               {
                 name: 'href',
-                type: {type: 'StringLiteral'}
-              }
-            ]
-          }
-        ]
-      }
+                type: {type: 'StringLiteral'},
+              },
+            ],
+          },
+        ],
+      },
     ],
     symbols: [
       {name: 'React'},
@@ -55,6 +55,6 @@ module.exports = {
       {name: 'export::EnhancedArrowFunctionalComponent'},
       {name: 'ClassComponent'},
       {name: 'export::default'},
-    ]
-  }
+    ],
+  },
 };

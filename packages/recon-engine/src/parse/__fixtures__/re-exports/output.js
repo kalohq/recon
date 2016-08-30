@@ -4,6 +4,6 @@ module.exports = {
     components: [],
     symbols: [
       {name: 'export::b', type: {type: 'ExportSpecifier', source: 'src'}},
-    ]
-  }
+    ],
+  },
 };

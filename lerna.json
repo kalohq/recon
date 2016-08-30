@@ -2,6 +2,6 @@
   "lerna": "2.0.0-beta.26",
   "version": "0.0.4",
   "bootstrapConfig": {
-    "ignore": "graphql"
+    "ignore": "graphql|expect"
   }
 }

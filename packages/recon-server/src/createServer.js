@@ -8,7 +8,7 @@ function createServer(engine, {port = 4000} = {}) {
 
   app.use('/graphql', graphqlHTTP({
     schema: engine.schema,
-    graphiql: true
+    graphiql: true,
   }));
 
   const server = http.createServer(app);

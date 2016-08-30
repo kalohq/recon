@@ -3,7 +3,7 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList
+  GraphQLList,
 } = require('graphql');
 
 // TODO: Roll in graphql-relay to make handling connections nicer
@@ -29,7 +29,7 @@ const makeDOMComponent = memoize((name) => {
     enhancements: [],
     props: [], // TODO: Probably a standard definition somewhere of dom attributes?
     deps: [],
-    definedIn: null
+    definedIn: null,
   };
 });
 
@@ -62,7 +62,7 @@ function createSchema(
       return {
         name,
         module,
-        notFound: true
+        notFound: true,
       };
     }
 
@@ -77,7 +77,7 @@ function createSchema(
         return {
           name,
           module,
-          notFound: true
+          notFound: true,
         };
       }
 
@@ -94,7 +94,7 @@ function createSchema(
         return {
           name,
           module,
-          notFound: true
+          notFound: true,
         };
       }
 
@@ -111,7 +111,7 @@ function createSchema(
         return {
           name,
           module,
-          notFound: true
+          notFound: true,
         };
       }
 
@@ -123,7 +123,7 @@ function createSchema(
 
     return {
       name,
-      module
+      module,
     };
   }, (n, m) => n + m.path);
 
@@ -154,7 +154,7 @@ function createSchema(
     // Does this break things by being path specific return value?
     // Maybe not since within this module the given symbol would always have the same enhancement path.
     return Object.assign({}, resolvedComponent, {
-      pathEnhancements: componentPath.enhancements
+      pathEnhancements: componentPath.enhancements,
     });
   }, s => s.name + s.module.path);
 
@@ -186,13 +186,13 @@ function createSchema(
         return {
           name: usages[0].name,
           component: resolvedComponent,
-          usages: map(usages, u => Object.assign({}, u, {component: resolvedComponent}))
+          usages: map(usages, u => Object.assign({}, u, {component: resolvedComponent})),
         };
       }
     );
 
     return Object.assign({}, component, {
-      resolvedDeps
+      resolvedDeps,
     });
   }, (c, m) => c.id + m.path);
 
@@ -225,24 +225,24 @@ function createSchema(
   const symbolType = new GraphQLObjectType({
     name: 'SymbolType',
     fields: () => ({
-      name: {type: GraphQLString}
-    })
+      name: {type: GraphQLString},
+    }),
   });
 
   const moduleDataType = new GraphQLObjectType({
     name: 'ModuleDataType',
     fields: () => ({
       symbols: {type: new GraphQLList(symbolType)},
-      components: {type: new GraphQLList(componentType)}
-    })
+      components: {type: new GraphQLList(componentType)},
+    }),
   });
 
   const moduleType = new GraphQLObjectType({
     name: 'ModuleType',
     fields: () => ({
       path: {type: GraphQLString},
-      data: {type: moduleDataType}
-    })
+      data: {type: moduleDataType},
+    }),
   });
 
   const propUsageType = new GraphQLObjectType({
@@ -251,9 +251,9 @@ function createSchema(
       name: {type: GraphQLString},
       valueType: {
         type: GraphQLString,
-        resolve: (prop) => prop.type.type
-      }
-    })
+        resolve: (prop) => prop.type.type,
+      },
+    }),
   });
 
   const componentUsageType = new GraphQLObjectType({
@@ -261,8 +261,8 @@ function createSchema(
     fields: () => ({
       name: {type: GraphQLString},
       component: {type: componentType},
-      props: {type: new GraphQLList(propUsageType)}
-    })
+      props: {type: new GraphQLList(propUsageType)},
+    }),
   });
 
   const componentDependencyType = new GraphQLObjectType({
@@ -270,8 +270,8 @@ function createSchema(
     fields: () => ({
       name: {type: GraphQLString},
       component: {type: componentType},
-      usages: {type: new GraphQLList(componentUsageType)}
-    })
+      usages: {type: new GraphQLList(componentUsageType)},
+    }),
   });
 
   const componentEnhancementType = new GraphQLObjectType({
@@ -283,11 +283,11 @@ function createSchema(
         type: new GraphQLObjectType({
           name: 'EnhanceCallee',
           fields: () => ({
-            type: {type: GraphQLString}
-          })
-        })
+            type: {type: GraphQLString},
+          }),
+        }),
       },
-    })
+    }),
   });
 
   const componentType = new GraphQLObjectType({
@@ -301,24 +301,24 @@ function createSchema(
           const all = allResolvedComponents();
 
           return find(all, c => c.id === component.id).resolvedDeps;
-        }
+        },
       },
       dependants: {
         type: new GraphQLList(componentDependencyType),
-        resolve: resolveComponentDependants
+        resolve: resolveComponentDependants,
       },
       enhancements: {
-        type: new GraphQLList(componentEnhancementType)
+        type: new GraphQLList(componentEnhancementType),
       },
       pathEnhancements: {
         description: 'Contextual enhancements',
-        type: new GraphQLList(componentEnhancementType)
+        type: new GraphQLList(componentEnhancementType),
       },
       module: {
         type: moduleType,
         resolve: (component) => getModules().find(m => m.path === component.definedIn),
-      }
-    })
+      },
+    }),
   });
 
   const schemaType = new GraphQLSchema({
@@ -329,22 +329,22 @@ function createSchema(
           type: new GraphQLList(componentType),
           resolve() {
             return allComponents();
-          }
+          },
         },
         modules: {
           type: new GraphQLList(moduleType),
           resolve() {
             return getModules();
-          }
+          },
         },
         numComponents: {
           type: GraphQLString,
           resolve() {
             return allComponents().length;
-          }
-        }
-      })
-    })
+          },
+        },
+      }),
+    }),
   });
 
   return schemaType;

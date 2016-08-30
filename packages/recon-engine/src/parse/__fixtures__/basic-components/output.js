@@ -5,14 +5,14 @@ module.exports = {
       {
         name: 'FunctionalComponent',
         deps: [
-          {name: 'div'}
-        ]
+          {name: 'div'},
+        ],
       },
       {
         name: 'ArrowFunctionalComponent',
         deps: [
-          {name: 'div'}
-        ]
+          {name: 'div'},
+        ],
       },
       {
         name: 'ClassComponent',
@@ -23,12 +23,12 @@ module.exports = {
             props: [
               {
                 name: 'href',
-                type: {type: 'StringLiteral'}
-              }
-            ]
-          }
-        ]
-      }
+                type: {type: 'StringLiteral'},
+              },
+            ],
+          },
+        ],
+      },
     ],
     symbols: [
       {name: 'React'},
@@ -38,6 +38,6 @@ module.exports = {
       {name: 'export::ArrowFunctionalComponent'},
       {name: 'ClassComponent'},
       {name: 'export::default'},
-    ]
-  }
+    ],
+  },
 };

@@ -35,13 +35,13 @@ function makeStats({data}) {
     {
       title: 'Num modules parsed',
       description: 'How many modules did we explore?',
-      data: data.modules.length
+      data: data.modules.length,
     },
 
     {
       title: 'Num components',
       description: 'How many component definitions did we find?',
-      data: data.components.length
+      data: data.components.length,
     },
 
     {
@@ -55,11 +55,11 @@ function makeStats({data}) {
             d => d.usages.length
           ).reduce(
             (a, b) => a + b
-          , 0)
+          , 0),
         })
       ).sort(
         (a, b) => a.usages > b.usages ? -1 : 1
-      ).map(c => [c.name, c.usages])
+      ).map(c => [c.name, c.usages]),
     },
 
     {
@@ -71,13 +71,13 @@ function makeStats({data}) {
           name: c.name,
           elements: sum(c.dependencies.map(
             d => d.usages.length
-          ))
+          )),
         })
       ).sort(
         (a, b) => a.elements > b.elements ? -1 : 1
       ).map(
         c => [c.name, c.elements]
-      )
+      ),
     },
 
     {
@@ -92,13 +92,13 @@ function makeStats({data}) {
           ))), 2),
           usages: sum(c.dependants.map(
             d => d.usages.length
-          ))
+          )),
         })
       ).sort(
         (a, b) => a.avgProps > b.avgProps ? -1 : 1
       ).map(
         c => [c.name, c.avgProps, c.usages]
-      )
+      ),
     },
 
     {
@@ -108,13 +108,13 @@ function makeStats({data}) {
       data: data.components.map(
         c => ({
           name: c.name,
-          uniqueDeps: c.dependencies.length
+          uniqueDeps: c.dependencies.length,
         })
       ).sort(
         (a, b) => a.uniqueDeps > b.uniqueDeps ? -1 : 1
       ).map(
         c => [c.name, c.uniqueDeps]
-      )
+      ),
     },
 
     {
@@ -125,7 +125,7 @@ function makeStats({data}) {
         c => !c.dependants.length && c.name
       ).map(
         c => [c.name]
-      )
+      ),
     },
 
     {
@@ -136,7 +136,7 @@ function makeStats({data}) {
         c => c.dependants.length === 1 && c.name
       ).map(
         c => [c.name]
-      )
+      ),
     },
 
     {
@@ -155,7 +155,7 @@ function makeStats({data}) {
         (a, b) => a.usages > b.usages? -1 : 1
       ).map(
         c => [c.name, c.usages]
-      )
+      ),
     },
 
   ];

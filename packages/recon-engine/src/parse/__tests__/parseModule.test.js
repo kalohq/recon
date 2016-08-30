@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const expect = require('expect');
 const parseModule = require('../parseModule');
 const FS = require('fs');
@@ -9,7 +10,7 @@ describe('react-engine::parse/parseModule', () => {
 
     function run(path) {
       const absPath = Path.join(__dirname, '../__fixtures__', path);
-      const output = require(`${absPath}/output`);
+      const output = require(`${absPath}/output`); // eslint-disable-line global-require
       const src = FS.readFileSync(`${absPath}/src.js`, {encoding: 'utf8'});
       const module = {src, path, id: path};
       const parsed = parseModule(module);

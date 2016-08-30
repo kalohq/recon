@@ -16,6 +16,7 @@
     "flow-vars/define-flow-type": 1,
     "flow-vars/use-flow-type": 1,
     "spaced-comment": 0,
-    "arrow-body-style": 0
+    "arrow-body-style": 0,
+    "no-confusing-arrow": 0
   }
 }

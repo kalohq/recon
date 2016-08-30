@@ -15,6 +15,6 @@ module.exports = {
       //{path: relPath('./src/user-list.js')},
       //{path: relPath('./src/list.js')},
       //{path: relPath('./src/button.js')},
-    ]
-  }
+    ],
+  },
 };

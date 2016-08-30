@@ -39,7 +39,7 @@ function createResolver(
   return memoize((context, target) => {
     const resolveFromPaths = [
       Path.dirname(context),
-      ...roots
+      ...roots,
     ];
     const resolvedPaths = resolveFromPaths.map(path => Path.resolve(path, target));
     const finalPaths = /\.[a-zA-Z0-9]$/.test(target) // has extension

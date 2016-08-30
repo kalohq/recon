@@ -1,4 +1,5 @@
 /* eslint-env node, mocha */
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const expect = require('expect');
 const Babylon = require('babylon');
 const traverse = require('babel-traverse').default;
@@ -12,15 +13,15 @@ function parse(type, code) {
     plugins: [
       'jsx',
       'flow',
-      'objectRestSpread'
-    ]
+      'objectRestSpread',
+    ],
   });
 
   traverse(ast, {
     [type]: function find(path) {
       found = path.node;
       path.stop();
-    }
+    },
   });
 
   return found;

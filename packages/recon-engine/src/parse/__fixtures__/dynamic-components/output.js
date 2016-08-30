@@ -6,18 +6,18 @@ module.exports = {
         id: String,
         name: 'Flex',
         deps: [
-          {name: 'div'}
+          {name: 'div'},
         ],
         createdBy: {
-          name: 'makeComponent'
-        }
-      }
+          name: 'makeComponent',
+        },
+      },
     ],
     symbols: [
       {name: 'React'},
       {name: 'makeComponent'},
       {name: 'Flex'},
       {name: 'export::Flex'},
-    ]
-  }
+    ],
+  },
 };

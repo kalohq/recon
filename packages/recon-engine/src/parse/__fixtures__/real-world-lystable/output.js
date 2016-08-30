@@ -7,7 +7,7 @@ module.exports = {
         deps: [
           {
             name: 'Box',
-            props: [{name: '__spread'}]
+            props: [{name: '__spread'}],
           },
           {
             name: 'CardHeader',
@@ -15,7 +15,7 @@ module.exports = {
               {name: 'locked', type: {type: 'Boolean'}},
               {name: 'title', type: {type: 'StringLiteral'}},
               {name: 'justify', type: {type: 'StringLiteral'}},
-            ]
+            ],
           },
           {name: 'Paper'},
           {name: 'Flex'},
@@ -33,7 +33,7 @@ module.exports = {
           {name: 'Flex'},
           {name: 'Text'},
           {name: 'Text'},
-        ]
+        ],
       },
       {
         name: 'AgencyChecklist',
@@ -44,16 +44,16 @@ module.exports = {
             props: [
               {
                 name: 'width',
-                type: {type: 'NumericLiteral'}
-              }
-            ]
+                type: {type: 'NumericLiteral'},
+              },
+            ],
           },
-        ]
+        ],
       },
       {
         name: 'TalentRequestsDetailPage',
-        enhancements: [{type: 'CallExpression'}]
-      }
+        enhancements: [{type: 'CallExpression'}],
+      },
     ],
     symbols: [
       {name: 'React'},
@@ -126,6 +126,6 @@ module.exports = {
       {name: 'export::container'},
       {name: 'talentRequestOrNotFound'},
       {name: 'export::default'},
-    ]
-  }
+    ],
+  },
 };

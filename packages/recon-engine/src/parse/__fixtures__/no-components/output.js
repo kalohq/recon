@@ -8,6 +8,6 @@ module.exports = {
       {name: 'export::MyClass'},
       {name: 'myValue'},
       {name: 'export::default'},
-    ]
-  }
+    ],
+  },
 };

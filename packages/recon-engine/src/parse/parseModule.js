@@ -22,15 +22,10 @@ function parseSource(moduleSource) {
       'exponentiationOperator',
       'asyncGenerators',
       'functionBind',
-      'functionSent'
+      'functionSent',
       // keep up-to-date
-    ]
+    ],
   });
-}
-
-/** Return a new mutable array */
-function mutableArray(init) {
-  return init ? new Array(...init) : new Array();
 }
 
 /** Provide an internal Recon type definition */
@@ -40,14 +35,14 @@ function resolveType(node, data = {}) {
 
 /** Pull TOP LEVEL symbols out of our ast */
 function pullSymbols(ast) {
-  const symbols = mutableArray();
+  const symbols = [];
 
   // TODO: Need to think hard about how we store each symbol "type" to allow easy resolution later
 
   function pushVariableDeclarator(node) {
     symbols.push({
       name: node.id.name,
-      type: resolveType(node.init)
+      type: resolveType(node.init),
     });
   }
 
@@ -60,21 +55,21 @@ function pullSymbols(ast) {
   function pushFunctionDeclaration(node) {
     symbols.push({
       name: node.id.name,
-      type: resolveType(node)
+      type: resolveType(node),
     });
   }
 
   function pushClassDeclaration(node) {
     symbols.push({
       name: node.id.name,
-      type: resolveType(node)
+      type: resolveType(node),
     });
   }
 
   function pushExportSpecifier(node, {source, sourceName} = {}) {
     symbols.push({
       name: `export::${node.exported.name}`,
-      type: resolveType(node, {source, sourceName})
+      type: resolveType(node, {source, sourceName}),
     });
   }
 
@@ -86,21 +81,21 @@ function pullSymbols(ast) {
       pushFunctionDeclaration(node);
       symbols.push({
         name: `export::${node.id.name}`,
-        type: resolveType(node.id)
+        type: resolveType(node.id),
       });
     } else if (T.isVariableDeclaration(node)) {
       pushVariableDeclaration(node);
       node.declarations.forEach(
         declNode => symbols.push({
           name: `export::${declNode.id.name}`,
-          type: resolveType(declNode.id)
+          type: resolveType(declNode.id),
         })
       );
     } else if (T.isClassDeclaration(node)) {
       pushClassDeclaration(node);
       symbols.push({
         name: `export::${node.id.name}`,
-        type: resolveType(node.id)
+        type: resolveType(node.id),
       });
     }
   }
@@ -123,26 +118,26 @@ function pullSymbols(ast) {
       pushFunctionDeclaration(decl);
       symbols.push({
         name: `export::default`,
-        type: resolveType(decl.id)
+        type: resolveType(decl.id),
       });
     } else if (T.isVariableDeclaration(decl)) {
       pushVariableDeclaration(decl);
       decl.declarations.forEach(
         vDecl => symbols.push({
           name: `export::default`,
-          type: resolveType(vDecl.id)
+          type: resolveType(vDecl.id),
         })
       );
     } else if (T.isClassDeclaration(decl)) {
       pushClassDeclaration(decl);
       symbols.push({
         name: `export::default`,
-        type: resolveType(decl.id)
+        type: resolveType(decl.id),
       });
     } else {
       symbols.push({
         name: `export::default`,
-        type: resolveType(decl)
+        type: resolveType(decl),
       });
     }
   }
@@ -196,7 +191,7 @@ function pullSymbols(ast) {
 
 /** Pull dep & usage info out of a render method/func ast */
 function pullDeps(ast) {
-  const deps = mutableArray();
+  const deps = [];
 
   // TODO: Search React.createElement
   // TODO: Allow other syntaxes such as hyperscript? part of plugin/config customisation
@@ -213,7 +208,7 @@ function pullDeps(ast) {
           attr => T.isJSXSpreadAttribute(attr)
             ? ({
               name: '__spread',
-              type: resolveType(attr.argument)
+              type: resolveType(attr.argument),
             })
             : ({
               name: attr.name.name,
@@ -221,13 +216,13 @@ function pullDeps(ast) {
               // TODO: for simple identifier types we could sometimes resolve to component prop types
               type: T.isJSXExpressionContainer(attr.value)
                 ? resolveType(attr.value.expression)
-                : resolveType(attr.value)
+                : resolveType(attr.value),
             })
-        )
+        ),
       });
     },
 
-    noScope: true
+    noScope: true,
   };
 
   traverse(ast, visitor);
@@ -236,7 +231,7 @@ function pullDeps(ast) {
 
 /** Search declarations and references to see if prop types are defined (FLOW?) */
 function findProps(/* path */) {
-  const props = mutableArray();
+  const props = [];
 
   // TODO: Pull static def from classes ie. static propTypes = {}
   // TODO: Look for mutations ie. MyComponent.propTypes = {};
@@ -293,7 +288,7 @@ function getRenderMethod(node) {
 
 /** Search for static components in our module */
 function pullStaticComponents(ast, {globalId, definedIn}) {
-  const components = mutableArray();
+  const components = [];
 
   // TODO: Look at top level CallExpression's and if we can resolve the function decl and it returns a component we can save that!!!
 
@@ -311,7 +306,7 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
         // TODO: Gather enhancements off of decorators
         let tPath = path.parentPath;
         let name = null;
-        const enhancements = mutableArray();
+        const enhancements = [];
         while (tPath) {
           // yay! we found the variable
           if (T.isVariableDeclarator(tPath)) {
@@ -337,7 +332,7 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
           enhancements: [...enhancements],
           props: findProps(path),
           deps: pullDeps(renderMethod),
-          definedIn
+          definedIn,
         });
       }
 
@@ -349,7 +344,7 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
           enhancements: [],
           props: findProps(path),
           deps: pullDeps(renderMethod),
-          definedIn
+          definedIn,
         });
       }
 
@@ -361,7 +356,7 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
           enhancements: [],
           props: findProps(path),
           deps: pullDeps(renderMethod),
-          definedIn
+          definedIn,
         });
       }
 
@@ -393,7 +388,7 @@ function getReturnValue(ast) {
       path.stop();
     },
 
-    noScope: true
+    noScope: true,
   };
 
   traverse(ast, visitor);
@@ -441,7 +436,7 @@ function pullDynamicComponents(symbols, {globalId, definedIn}) {
       props: [], // TODO: findProps(path),
       deps: pullDeps(renderMethod),
       createdBy: creator,
-      definedIn
+      definedIn,
     };
 
   }).filter(c => !!c);
@@ -449,14 +444,14 @@ function pullDynamicComponents(symbols, {globalId, definedIn}) {
 
 /** Pull all Identifier nodes within an ast */
 function getIdentifiers(ast) {
-  const identifiers = mutableArray();
+  const identifiers = [];
 
   const visitor = {
     Identifier(path) {
       identifiers.push(path.node);
     },
 
-    noScope: true
+    noScope: true,
   };
 
   traverse(ast, visitor);
@@ -465,14 +460,14 @@ function getIdentifiers(ast) {
 
 /** Pull all CallExpression nodes within an ast */
 function getCallExpressions(ast) {
-  const callExpressions = mutableArray();
+  const callExpressions = [];
 
   const visitor = {
     CallExpression(path) {
       callExpressions.push(path.node);
     },
 
-    noScope: true
+    noScope: true,
   };
 
   traverse(ast, visitor);
@@ -494,7 +489,7 @@ function getPotentialComponentPaths(symbols, components) {
             i => components.find(c => c.name === i.name)
           ).map(
             i => ({name: i.name, type: resolveType(i)})
-          )
+          ),
         }
         : {targets: []};
     }
@@ -512,7 +507,7 @@ function pullData(ast, opts) {
   return {
     symbols,
     components,
-    potentialComponentPaths
+    potentialComponentPaths,
   };
 }
 
@@ -528,7 +523,7 @@ function parseModule({path, src, id}) {
 
     return {
       path,
-      data
+      data,
     };
   } catch (error) {
     return {
@@ -538,7 +533,7 @@ function parseModule({path, src, id}) {
         symbols: [],
         components: [],
         potentialComponentPaths: [],
-      }
+      },
     };
   }
 }

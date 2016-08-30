@@ -9,6 +9,7 @@ const {createConfig} = require('recon-config');
 const {createEngine} = require('recon-engine');
 const {pullStats: _pullStats} = require('recon-stats');
 const {createServer} = require('recon-server');
+
 const chalk = vorpal.chalk;
 
 /** Current project config */
@@ -32,7 +33,7 @@ const getEngine = memoize(() => new Promise((accept) => {
         incomplete: ' ',
         width: 30,
         total: stats.numModules,
-        clear: true
+        clear: true,
       });
     }
     if (bar) {

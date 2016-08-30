@@ -17,7 +17,7 @@ function containsJSX(node) {
       }
     },
 
-    noScope: true
+    noScope: true,
   };
 
   traverse(node, visitor);
