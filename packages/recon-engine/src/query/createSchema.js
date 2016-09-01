@@ -147,7 +147,7 @@ function createSchema(
     }
 
     // Only taking the *last* potential component here. Really we should be
-    // able to offer all of them as potential components
+    // able to offer all of them as potential components Ie. branching
     const target = last(componentPath.targets);
     const resolvedComponent = resolveComponentByName(target.name, resolvedSymbol.module);
 
@@ -284,6 +284,7 @@ function createSchema(
           name: 'EnhanceCallee',
           fields: () => ({
             type: {type: GraphQLString},
+            name: {type: GraphQLString},
           }),
         }),
       },

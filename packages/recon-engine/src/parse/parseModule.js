@@ -485,6 +485,7 @@ function getPotentialComponentPaths(symbols, components) {
         ? {
           name: sym.name,
           enhancements: [sym.type.__node, ...getCallExpressions(sym.type.__node)],
+          // TODO: What if we had another intermediate enhancement path? we wouldn't find the component definition
           targets: getIdentifiers(sym.type.__node).filter(
             i => components.find(c => c.name === i.name)
           ).map(
