@@ -21,7 +21,7 @@ describe('recon-config::createConfig', () => {
     const file = createConfig(uc, {cwd});
     expect(Jetpack.cwd(cwd).exists('.reconrc')).toBe('file');
     expect(Jetpack.cwd(cwd).read('.reconrc', 'json')).toMatch(uc);
-    expect(file).toMatch(Path.join(cwd, '.reconrc'));
+    expect(file).toMatch(Path.resolve(cwd, '.reconrc'));
     // finally, clean up test
     Jetpack.cwd(cwd).remove('.reconrc');
   });

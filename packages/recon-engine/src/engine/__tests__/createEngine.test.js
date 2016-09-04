@@ -3,17 +3,18 @@
 const expect = require('expect');
 const Path = require('path');
 const FS = require('fs');
+const match = require('tmatch');
 
 const createEngine = require('../createEngine');
 
 function run(path) {
-  const absPath = Path.join(__dirname, '../__fixtures__', path);
-  const output = require(Path.join(absPath, 'output')); // eslint-disable-line global-require
-  const query = FS.readFileSync(Path.join(absPath, 'query.graphql'), {encoding: 'utf8'});
+  const absPath = Path.resolve(__dirname, '../__fixtures__', path);
+  const output = require(Path.resolve(absPath, 'output')); // eslint-disable-line global-require
+  const query = FS.readFileSync(Path.resolve(absPath, 'query.graphql'), {encoding: 'utf8'});
 
   const engine = createEngine({
     files: '**/*.js',
-    context: Path.join(absPath, 'src'),
+    context: Path.resolve(absPath, 'src'),
   });
 
   return new Promise((accept, reject) => {
@@ -21,7 +22,7 @@ function run(path) {
       if (stats.numModules && stats.canQuery) {
         engine.runQuery(query).then(
           result => {
-            expect(result).toMatch(output);
+            expect(match(result, output, {unordered: true})).toExist();
             accept();
           },
           err => reject(err)

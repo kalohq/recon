@@ -12,7 +12,7 @@ function createConfig(userConfig, {cwd = process.cwd()} = {}) {
     throw new Error('Oops! Looks like you already have a .reconrc file!');
   }
   Jetpack.cwd(cwd).write(CONFIG_FILE_NAME, userConfig);
-  return Path.join(cwd, CONFIG_FILE_NAME);
+  return Path.resolve(cwd, CONFIG_FILE_NAME);
 }
 
 module.exports = createConfig;

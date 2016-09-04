@@ -9,7 +9,7 @@ describe('react-engine::parse/parseModule', () => {
   describe('::parseModule (default)', () => {
 
     function run(path) {
-      const absPath = Path.join(__dirname, '../__fixtures__', path);
+      const absPath = Path.resolve(__dirname, '../__fixtures__', path);
       const output = require(`${absPath}/output`); // eslint-disable-line global-require
       const src = FS.readFileSync(`${absPath}/src.js`, {encoding: 'utf8'});
       const module = {src, path, id: path};

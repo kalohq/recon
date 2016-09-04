@@ -21,6 +21,8 @@ const chalk = vorpal.chalk;
 const CONFIG_HELP_URL = 'https://github.com/lystable/recon/tree/master/packages/recon-config';
 
 
+
+
 // ----------------------------------------------------------------------------
 // Configuration
 // ----------------------------------------------------------------------------
@@ -34,7 +36,7 @@ const detectWebpack = () => {
 
 /** Given path to webpack config file lets gen recon config */
 const configFromWebpack = (path) => {
-  const configPath = Path.join(process.cwd(), path);
+  const configPath = Path.resolve(process.cwd(), path);
   const webpackConfig = require(configPath); // eslint-disable-line global-require
   return _configFromWebpack(webpackConfig);
 };
