@@ -9,6 +9,7 @@ Recon configuration management.
 
 All projects hoping to use Recon should have a `.reconrc` file at their root.
 
+- `context` - Where should we search for files (default `process.cwd()`)
 - `files` *(required)* - [Glob](https://en.wikipedia.org/wiki/Glob_(programming)) pattern telling which files
 recon should parse. This should be pretty much all js files in your application which are likely to
 be used by or use a component. It is recommended to exclude any meta files such as tests.
@@ -17,6 +18,8 @@ be used by or use a component. It is recommended to exclude any meta files such 
   Eg. `require('components/button')` and `roots: [core]` would look in `core/components/button`
   - `extensions` - An array of extensions to include when resolving paths without an explicit extension.
   Default: `['.js', '.jsx']`
+- `ignore` - Regex to exclude paths from being parsed (default `/node_modules/`)
+  - Note: atm we don't support flags, pr's welcome!
 
 ##### Example configuration
 
@@ -28,7 +31,8 @@ be used by or use a component. It is recommended to exclude any meta files such 
       "src/core",
       "src"
     ]
-  }
+  },
+  "ignore": "/node_modules/"
 }
 ```
 

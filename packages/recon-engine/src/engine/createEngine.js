@@ -13,6 +13,7 @@ const {
   join,
   flatten,
   cloneDeepWith,
+  trim,
 } = require('lodash');
 
 const createSchema = require('../query/createSchema');
@@ -35,7 +36,8 @@ function createResolver(
     extensions = ['.js', '.jsx'],
   } = {}
 ) {
-  const roots = _roots.map(r => Path.join(cwd, r));
+  // TODO: Support "aliases" (eg. webpack aliases)
+  const roots = _roots.map(r => Path.resolve(cwd, r));
   return memoize((context, target) => {
     const resolveFromPaths = [
       Path.dirname(context),
@@ -44,28 +46,37 @@ function createResolver(
     const resolvedPaths = resolveFromPaths.map(path => Path.resolve(path, target));
     const finalPaths = /\.[a-zA-Z0-9]$/.test(target) // has extension
       ? resolvedPaths
-      : flatten(resolvedPaths.map(p => [...extensions.map(ext => `${p}${ext}`), Path.join(p, 'index.js')]));
+      : flatten(resolvedPaths.map(p => [...extensions.map(ext => `${p}${ext}`), Path.resolve(p, 'index.js')]));
 
     return finalPaths;
   }, join);
 }
 
 /** Create a new engine instance */
-function createEngine({files, cwd = process.cwd(), resolve}) {
+function createEngine({
+  files,
+  context: _rawContext,
+  cwd = process.cwd(),
+  resolve,
+  exclude = '/node_modules/',
+}) {
   const subscriptions = [];
   const modules = {};
   let hasDiscovered = false;
+  const excludeRegexp = new RegExp(trim(exclude, '/'));
+  const context = Path.resolve(cwd, _rawContext);
 
-  const resolveModulePaths = createResolver(cwd, resolve);
+  const resolveModulePaths = createResolver(context, resolve);
 
   // TODO: Cache parsed modules
   // TODO: Add persisted/watching support
 
-  glob(files, {cwd}).then((foundFiles) => {
+  glob(files, {cwd: context}).then((rawFoundFiles) => {
     hasDiscovered = true;
 
+    const foundFiles = filter(rawFoundFiles, path => !excludeRegexp.test(path));
     forEach(foundFiles, file => {
-      const path = Path.join(cwd, file);
+      const path = Path.resolve(context, file);
       const module = modules[file] = {ready: false, file, path};
 
       Jetpack.readAsync(path, 'utf8').then(

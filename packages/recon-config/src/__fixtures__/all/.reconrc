@@ -1,3 +1,4 @@
 {
+  "files": "**/*.js",
   "resolve": {}
 }

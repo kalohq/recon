@@ -1,19 +1,18 @@
 const Jetpack = require('fs-jetpack');
-
-/** File name to look for configuration */
-const CONFIG_FILE_NAME = '.reconrc';
+const Path = require('path');
+const {CONFIG_FILE_NAME} = require('./shared');
 
 /**
- * Generate a full config for a working directory and any user config
- * - Will manage any sensible merging of configs as complexity grows
+ * Create a new config file with user defined configuration
  */
-function createConfig(uc, {cwd = process.cwd()} = {}) {
+function createConfig(userConfig, {cwd = process.cwd()} = {}) {
   // TODO: Search for definition within package.json
-  const rc = Jetpack.cwd(cwd).read(CONFIG_FILE_NAME, 'json');
-  if (!rc) {
-    throw new Error('Oops! Doesn\'t look like there is a valid .reconrc file defined in your project root. See: https://github.com/lystable/recon/tree/master/packages/recon-config for info.'); // eslint-disable-line max-len
+  const rc = Jetpack.cwd(cwd).exists(CONFIG_FILE_NAME);
+  if (rc) {
+    throw new Error('Oops! Looks like you already have a .reconrc file!');
   }
-  return Object.assign({}, rc, uc);
+  Jetpack.cwd(cwd).write(CONFIG_FILE_NAME, userConfig);
+  return Path.join(cwd, CONFIG_FILE_NAME);
 }
 
 module.exports = createConfig;

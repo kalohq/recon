@@ -1,22 +1,111 @@
 #! /usr/bin/env node
 const vorpal = require('vorpal')();
-const {forEach, padEnd, isArray, map, join, take, max, memoize} = require('lodash');
+const {forEach, padEnd, isArray, map, join, take, max, memoize, has} = require('lodash');
 const ProgressBar = require('progress');
 const dedent = require('dedent');
 const jetpack = require('fs-jetpack');
+const Path = require('path');
 
-const {createConfig} = require('recon-config');
+const {
+  getConfig: _getConfig,
+  createConfig: _createConfig,
+  configFromWebpack: _configFromWebpack,
+} = require('recon-config');
 const {createEngine} = require('recon-engine');
 const {pullStats: _pullStats} = require('recon-stats');
 const {createServer} = require('recon-server');
 
 const chalk = vorpal.chalk;
 
+
+// ----------------------------------------------------------------------------
+// Configuration
+// ----------------------------------------------------------------------------
+
+
+/** Determine whether the user may be using webpack or not? */
+const detectWebpack = () => {
+  const pkg = jetpack.cwd(process.cwd()).read('package.json', 'json');
+  return has(pkg.dependencies, 'webpack') || has(pkg.devDependencies, 'webpack');
+};
+
+/** Given path to webpack config file lets gen recon config */
+const configFromWebpack = (path) => {
+  const configPath = Path.join(process.cwd(), path);
+  const webpackConfig = require(configPath); // eslint-disable-line global-require
+  return _configFromWebpack(webpackConfig);
+};
+
 /** Current project config */
-const config = createConfig();
+const getConfig = uc => new Promise(accept => accept(_getConfig(uc))).catch(() => {
+  // Looks like we need a config file...
+  const act = vorpal.activeCommand;
+  act.log(chalk.red('Oops! Looks like we failed to load any configuration.'));
+
+  return makeConfig().catch( // eslint-disable-line no-use-before-define
+    () => {
+      throw new Error('We need a configuration file to continue! :(');
+    }
+  );
+});
+
+const makeConfig = () => {
+  const act = vorpal.activeCommand;
+
+  return act.prompt([
+    {
+      type: 'confirm',
+      name: 'create',
+      message: 'Would you like us to create a config file for you?',
+    },
+    {
+      type: 'confirm',
+      name: 'webpack',
+      message: 'We detected you\'re using webpack. Would you like us to try and generate resolve config from there?',
+      when: ({create}) => create && detectWebpack(),
+    },
+    {
+      type: 'input',
+      name: 'webpackConfig',
+      message: 'What webpack config file should we use for your configuration? (relative to cwd)',
+      default: './webpack.config.js',
+      when: ({webpack}) => webpack,
+      validate: path => jetpack.exists(path) === 'file' || 'Could not find that file.',
+    },
+    {
+      type: 'input',
+      name: 'files',
+      message: 'What modules should we parse in your application? (glob pattern, relative to context)',
+      default: '**/!(*.test|*.manifest).js*',
+      when: ({create}) => create,
+    },
+  ]).then(result => {
+    const {create, files, webpack, webpackConfig} = result;
+
+    if (create) {
+      const config = Object.assign({files}, webpack ? configFromWebpack(webpackConfig) : {});
+      const file = _createConfig(config);
+      act.log(chalk.green(`Configuration file created! ${file}`));
+      // anddd, try again...
+      return getConfig();
+    }
+
+    return null;
+  });
+};
+
+vorpal
+  .command('init', 'Initialise recon for this project. Creates config etc.')
+  .action(makeConfig);
+
+
+// ----------------------------------------------------------------------------
+// Engine Management
+// ----------------------------------------------------------------------------
+
 
 /** Get a (persisted) recon engine for current project */
-const getEngine = memoize(() => new Promise((accept) => {
+const getEngine = memoize(() => getConfig().then(config => new Promise((accept) => {
   const act = vorpal.activeCommand;
   act.log('Starting Recon Engine...');
   const createdEngine = createEngine(config);
@@ -50,7 +139,7 @@ const getEngine = memoize(() => new Promise((accept) => {
       accept(createdEngine);
     }
   });
-}));
+})));
 
 
 // ----------------------------------------------------------------------------

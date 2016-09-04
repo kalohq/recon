@@ -6,6 +6,7 @@ const api = require('../index');
 
 describe('recon-config::index', () => {
   it('should provide expected api', () => {
+    expect(api.getConfig).toBeA(Function);
     expect(api.createConfig).toBeA(Function);
   });
 });

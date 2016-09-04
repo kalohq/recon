@@ -13,7 +13,7 @@ function run(path) {
 
   const engine = createEngine({
     files: '**/*.js',
-    cwd: Path.join(absPath, 'src'),
+    context: Path.join(absPath, 'src'),
   });
 
   return new Promise((accept, reject) => {
