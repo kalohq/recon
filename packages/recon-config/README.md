@@ -24,12 +24,13 @@ be used by or use a component. It is recommended to exclude any meta files such 
 ##### Example configuration
 
 ```json
-{
-	"files": "src/**/!(*-test|*-tests|*.manifest).js*",
+
+  "context": "src",
+  "files": "**/!(*-test|*-tests|*.manifest).js*",
   "resolve": {
     "roots": [
-      "src/core",
-      "src"
+      "core",
+      ""
     ]
   },
   "ignore": "/node_modules/"
