@@ -21,8 +21,6 @@ const chalk = vorpal.chalk;
 const CONFIG_HELP_URL = 'https://github.com/lystable/recon/tree/master/packages/recon-config';
 
 
-
-
 // ----------------------------------------------------------------------------
 // Configuration
 // ----------------------------------------------------------------------------
