@@ -35,32 +35,11 @@ Once this data is consolidated the possibility of tools to be built on top are *
 Getting Started
 ---------------
 
-Prerequisites: `Node >v6`, using `import/export` syntax, using JSX (see roadmap for full list)
+Prerequisites: `Node >v6`. Also ensure using `import/export` syntax, using JSX (see roadmap for full list)
 
-The first thing you're going to want to do is create a new config file `.reconrc` in the working directory
-of your project.
+#### Install and configuration
 
-Eg.
-
-```json
-{
-  "files": "src/**/!(*-test|*-tests|*.manifest).js*",
-  "resolve": {
-    "roots": [
-      "src/core",
-      "src"
-    ]
-  }
-}
-```
-
-Configuration is pretty basic at the moment but options are documented
-[here](./packages/recon-config/README.md).
-
-#### Show me the power!
-
-For the majority of people just looking to see what data they can pull out of their application
-our interactive cli will be *the* place to look.
+The quickest way to get going with Recon for your project is to use our CLI application.
 
 Firstly install with
 
@@ -82,7 +61,34 @@ From this point forwards the entire power of Recon should be just a `help` comma
 recon$ help
 ```
 
-> Hint: Why not start off by trying `stats`. Then if you're feeling *extra* adventurous give `server` a go.
+The first thing you're going to want to do from here is create a new config file `.reconrc` in the working directory
+of your project.
+
+You can do this by running
+
+```
+recon$ init
+```
+
+*To view all configuration possibilities you can view the docs [here](./packages/recon-config/README.md).*
+
+#### Show me the power!
+
+Why not start off by trying `stats`. This will analyse your application and dump out a bunch of objective
+statements and statistics.
+
+```
+recon$ stats
+```
+
+Then if you're feeling *extra* adventurous give `server` a go. This will spawn a new `graphql` server which will
+allow you to query your application meta data freely.
+
+```
+recon$ server
+```
+
+For everything else see what is available via the `help` command!
 
 ### I want to integrate Recon into x
 
