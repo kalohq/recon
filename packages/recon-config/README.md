@@ -24,7 +24,7 @@ be used by or use a component. It is recommended to exclude any meta files such 
 ##### Example configuration
 
 ```json
-
+{
   "context": "src",
   "files": "**/!(*-test|*-tests|*.manifest).js*",
   "resolve": {
