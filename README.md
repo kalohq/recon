@@ -37,7 +37,7 @@ Getting Started
 
 Prerequisites: `Node >v6`. Also ensure using `import/export` syntax, using JSX (see roadmap for full list)
 
-#### Install and configuration
+### Install and configuration
 
 The quickest way to get going with Recon for your project is to use our CLI application.
 
@@ -64,7 +64,7 @@ recon$ help
 The first thing you're going to want to do from here is create a new config file `.reconrc` in the working directory
 of your project.
 
-You can do this by running
+You can do this interactively by running
 
 ```
 recon$ init
@@ -72,7 +72,7 @@ recon$ init
 
 *To view all configuration possibilities you can view the docs [here](./packages/recon-config/README.md).*
 
-#### Show me the power!
+### Show me the power!
 
 Why not start off by trying `stats`. This will analyse your application and dump out a bunch of objective
 statements and statistics.
