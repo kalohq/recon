@@ -55,7 +55,7 @@ function createResolver(
 /** Create a new engine instance */
 function createEngine({
   files,
-  context: _rawContext,
+  context: _rawContext = '',
   cwd = process.cwd(),
   resolve,
   exclude = '/node_modules/',

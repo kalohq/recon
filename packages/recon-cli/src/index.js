@@ -17,6 +17,9 @@ const {createServer} = require('recon-server');
 
 const chalk = vorpal.chalk;
 
+// helpful urls
+const CONFIG_HELP_URL = 'https://github.com/lystable/recon/tree/master/packages/recon-config';
+
 
 // ----------------------------------------------------------------------------
 // Configuration
@@ -86,6 +89,7 @@ const makeConfig = () => {
       const config = Object.assign({files}, webpack ? configFromWebpack(webpackConfig) : {});
       const file = _createConfig(config);
       act.log(chalk.green(`Configuration file created! ${file}`));
+      act.log(chalk.dim(`Read more about .reconrc configuration here: ${CONFIG_HELP_URL}`));
       // anddd, try again...
       return getConfig();
     }
