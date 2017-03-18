@@ -18,6 +18,8 @@ const {
   memoize,
   join,
   filter,
+  flatMap,
+  isString,
 } = require('lodash');
 
 const makeDOMComponent = memoize(name => {
@@ -44,7 +46,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
   });
 
   const allComponents = memoize(() => {
-    return flatten(map(getModules(), m => m.data.components));
+    return filter(flatten(map(getModules(), m => m.data.components)), c => !!c);
   });
 
   const getModule = memoize(
@@ -161,7 +163,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
         resolvedSymbol.module
       );
 
-      // Does this break things by being path specific return value?
+      // Does this break things by being path specific return value? (ie. due to aggressive memoizing)
       // Maybe not since within this module the given symbol would always have the same enhancement path.
       return Object.assign({}, resolvedComponent, {
         pathEnhancements: componentPath.enhancements,
@@ -204,8 +206,12 @@ function createSchema(dataSource, {resolveModulePaths}) {
           return {
             name: usages[0].name,
             component: resolvedComponent,
+            byComponent: component,
             usages: map(usages, u =>
-              Object.assign({}, u, {component: resolvedComponent})),
+              Object.assign({}, u, {
+                component: resolvedComponent,
+                byComponent: component,
+              })),
           };
         }
       );
@@ -271,6 +277,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
     fields: () => ({
       name: {type: GraphQLString},
       component: {type: componentType},
+      byComponent: {type: componentType},
       props: {type: new GraphQLList(propUsageType)},
     }),
   });
@@ -318,6 +325,15 @@ function createSchema(dataSource, {resolveModulePaths}) {
         type: new GraphQLList(componentDependencyType),
         resolve: resolveComponentDependants,
       },
+      usages: {
+        type: new GraphQLList(componentUsageType),
+        resolve: component => {
+          return flatMap(
+            resolveComponentDependants(component),
+            dependant => dependant.usages
+          );
+        },
+      },
       enhancements: {
         type: new GraphQLList(componentEnhancementType),
       },
@@ -339,8 +355,21 @@ function createSchema(dataSource, {resolveModulePaths}) {
       fields: () => ({
         components: {
           type: new GraphQLList(componentType),
-          resolve() {
-            return allComponents();
+          args: {
+            name: {
+              type: GraphQLString,
+            },
+          },
+          resolve(root, {name}) {
+            const all = allComponents();
+
+            if (name) {
+              return all.filter(
+                c => isString(c.name) && c.name.indexOf(name) > -1
+              );
+            }
+
+            return all;
           },
         },
         modules: {
