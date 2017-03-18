@@ -72,9 +72,9 @@ function makeStats({data}) {
           name: c.name,
           avgProps: round(
             mean(
-              flatten(c.dependants.map(d => d.usages.map(u => u.props.length))),
+              flatten(c.dependants.map(d => d.usages.map(u => u.props.length)))
             ),
-            2,
+            2
           ),
           usages: sum(c.dependants.map(d => d.usages.length)),
         }))
@@ -112,7 +112,7 @@ function makeStats({data}) {
         .filter(
           c =>
             c.dependants.length === 1 &&
-            c.module.path === c.dependants[0].component.module.path,
+            c.module.path === c.dependants[0].component.module.path
         )
         .map(c => [c.name]),
     },
@@ -125,7 +125,7 @@ function makeStats({data}) {
         .filter(
           c =>
             c.dependants.length === 1 &&
-            c.module.path !== c.dependants[0].component.module.path,
+            c.module.path !== c.dependants[0].component.module.path
         )
         .map(c => [c.name]),
     },
@@ -139,10 +139,10 @@ function makeStats({data}) {
           flattenDeep(
             data.components.map(c =>
               c.dependencies.map(d =>
-                d.usages.map(u => u.props.map(p => p.name)))),
+                d.usages.map(u => u.props.map(p => p.name))))
           ),
-          identity,
-        ),
+          identity
+        )
       )
         .map(([name, u]) => ({name, usages: u.length}))
         .sort((a, b) => a.usages > b.usages ? -1 : 1)
