@@ -20,7 +20,7 @@
   "homepage": "https://github.com/lystable/recon",
   "dependencies": {
     "express": "^4.14.0",
-    "express-graphql": "0.6.3",
-    "graphql": "0.9.1"
+    "express-graphql": "^0.6.3",
+    "graphql": "^0.9.1"
   }
 }

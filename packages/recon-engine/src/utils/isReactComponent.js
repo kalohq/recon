@@ -32,7 +32,7 @@ function isReactComponent(node) {
   if (T.isClassDeclaration(node)) {
     return !!find(
       node.body.body,
-      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render',
+      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render'
     );
   }
 

@@ -60,7 +60,7 @@ const getConfig = uc =>
       /* eslint-enable no-use-before-define */
       () => {
         throw new Error('We need a configuration file to continue! :(');
-      },
+      }
     );
   });
 
@@ -103,14 +103,14 @@ const makeConfig = () => {
       if (create) {
         const config = Object.assign(
           {files},
-          webpack ? configFromWebpack(webpackConfig) : {},
+          webpack ? configFromWebpack(webpackConfig) : {}
         );
         const file = _createConfig(config);
         act.log(chalk.green(`Configuration file created! ${file}`));
         act.log(
           chalk.dim(
-            `Read more about .reconrc configuration here: ${CONFIG_HELP_URL}`,
-          ),
+            `Read more about .reconrc configuration here: ${CONFIG_HELP_URL}`
+          )
         );
         // anddd, try again...
         return getConfig();
@@ -156,7 +156,7 @@ const getEngine = memoize(() =>
             bar.update(
               stats.numReadyModules
                 ? stats.numReadyModules / stats.numModules
-                : 0,
+                : 0
             );
           }
           if (stats.canQuery) {
@@ -165,8 +165,8 @@ const getEngine = memoize(() =>
               act.log('');
               act.log(
                 chalk.bold(
-                  `Saw ${stats.numErroredModules} errors while parsing:`,
-                ),
+                  `Saw ${stats.numErroredModules} errors while parsing:`
+                )
               );
               map(stats.moduleErrors, (m, i) =>
                 act.log(chalk.red(`${i + 1}. ${m.error.message} <${m.path}>`)));
@@ -175,7 +175,7 @@ const getEngine = memoize(() =>
             accept(createdEngine);
           }
         });
-      }),
+      })
   ));
 
 // ----------------------------------------------------------------------------
@@ -202,8 +202,8 @@ function logStats(stats, {numRows = 20, debug = false} = {}) {
       act.log(
         join(
           map(stat.headers, (h, i) => chalk.bold(padEnd(h, colWidths[i]))),
-          SEP,
-        ),
+          SEP
+        )
       );
     }
     if (isArray(stat.data)) {
@@ -258,7 +258,7 @@ function spawnServer(engine, opts) {
       dedent`
       Recon server listening on port ${port}!
       Visit ${chalk.bold(`http://localhost:${port}/graphql`)} to play with your data!
-    `,
+    `
     );
     act.log('');
     return server;

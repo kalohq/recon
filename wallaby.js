@@ -1,10 +1,7 @@
 module.exports = function() {
   return {
     testFramework: 'jest',
-    files: [
-      'packages/**/src/**/*.js',
-      {pattern: 'packages/**/src/**/__tests__/**/*.test.js', ignore: true},
-    ],
+    files: ['packages/**/*', {pattern: '**/*.test.js', ignore: true}],
     tests: [
       'packages/**/src/**/__tests__/**/*.test.js',
       {pattern: 'packages/**/node_modules/**/__tests__/**', ignore: true},

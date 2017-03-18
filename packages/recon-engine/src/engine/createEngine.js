@@ -34,7 +34,7 @@ function createResolver(
   {
     roots: _roots = [cwd],
     extensions = ['.js', '.jsx'],
-  } = {},
+  } = {}
 ) {
   // TODO: Support "aliases" (eg. webpack aliases)
   const roots = _roots.map(r => Path.resolve(cwd, r));
@@ -49,12 +49,12 @@ function createResolver(
             resolvedPaths.map(p => [
               ...extensions.map(ext => `${p}${ext}`),
               Path.resolve(p, 'index.js'),
-            ]),
+            ])
           );
 
       return finalPaths;
     },
-    join,
+    join
   );
 }
 
@@ -66,7 +66,7 @@ function createEngine(
     cwd = process.cwd(),
     resolve,
     exclude = '/node_modules/',
-  },
+  }
 ) {
   const subscriptions = [];
   const modules = {};
@@ -99,7 +99,7 @@ function createEngine(
           module.ready = true;
           module.error = error;
           send();
-        },
+        }
       );
     });
 

@@ -75,7 +75,7 @@ export function UpdatesCard(
   {
     talentRequest,
     ...otherProps
-  },
+  }
 ) {
   return (
     <Box {...otherProps}>
@@ -127,12 +127,12 @@ export function AgencyChecklist(
     agencies,
     onCreated,
     createAgencyTalentRequestAction,
-  },
+  }
 ) {
   const items = agencies.map(agency => {
     // Check if the agency is already attached
     const existingAgency = talentRequest.agencies.find(
-      _agency => !!_agency && matchRecord(agency, _agency),
+      _agency => !!_agency && matchRecord(agency, _agency)
     );
 
     return {
@@ -143,7 +143,7 @@ export function AgencyChecklist(
           new AgencyTalentRequest({
             talent_request: talentRequest,
             agency,
-          }),
+          })
         ).then(() => {
           onCreated();
         });
@@ -469,7 +469,7 @@ export const container = createContainer({
 const talentRequestOrNotFound = branch(
   ({queries, talentRequest}) => !queries.talentRequest.ready || !!talentRequest,
   identity,
-  notFound(),
+  notFound()
 );
 
 export default compose(
@@ -484,5 +484,5 @@ export default compose(
   }),
   container,
   talentRequestOrNotFound,
-  withReducer('state', 'dispatch', reducer, new State()),
+  withReducer('state', 'dispatch', reducer, new State())
 )(TalentRequestsDetailPage);

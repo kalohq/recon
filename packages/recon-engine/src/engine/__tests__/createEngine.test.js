@@ -24,7 +24,7 @@ function run(path) {
             expect(result).toMatchSnapshot();
             accept();
           },
-          err => reject(err),
+          err => reject(err)
         );
       }
     });

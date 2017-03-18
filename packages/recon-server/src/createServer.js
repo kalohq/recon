@@ -11,7 +11,7 @@ function createServer(engine, {port = 4000} = {}) {
     graphqlHTTP({
       schema: engine.schema,
       graphiql: true,
-    }),
+    })
   );
 
   const server = http.createServer(app);

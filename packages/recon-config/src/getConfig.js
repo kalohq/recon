@@ -12,7 +12,7 @@ function getConfig(uc, {cwd = process.cwd()} = {}) {
     throw new Error(
       "Oops! Doesn't look like there is a valid .reconrc file" +
         'defined in your project root. See: https://github' +
-        '.com/lystable/recon/tree/master/packages/recon-config for info.',
+        '.com/lystable/recon/tree/master/packages/recon-config for info.'
     ); // eslint-disable-line max-len
   }
   return Object.assign({}, rc, uc);

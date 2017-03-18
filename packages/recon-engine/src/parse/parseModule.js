@@ -215,7 +215,7 @@ function pullDeps(ast) {
                   type: T.isJSXExpressionContainer(attr.value)
                     ? resolveType(attr.value.expression)
                     : resolveType(attr.value),
-                },
+                }
         ),
       });
     },
@@ -279,7 +279,7 @@ function getRenderMethod(node) {
 
   if (T.isClassDeclaration(node)) {
     return node.body.body.find(
-      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render',
+      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render'
     );
   }
 
@@ -502,7 +502,7 @@ function pullData(ast, opts) {
   const potentialComponentPaths = getPotentialComponentPaths(
     symbols,
     components,
-    opts,
+    opts
   );
 
   return {

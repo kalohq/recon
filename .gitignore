@@ -3,6 +3,7 @@ node_modules/
 dist/
 .idea/
 npm-debug.log
+lerna-debug.log
 __local__/
 *.__local__.*
 .tmp/

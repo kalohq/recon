@@ -51,7 +51,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
     paths => {
       return find(getModules(), m => find(paths, path => path === m.path));
     },
-    p => join(p),
+    p => join(p)
   );
 
   const resolveSymbol = memoize(
@@ -72,7 +72,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
       if (localSymbol.type.type === 'ImportSpecifier') {
         const nextModule = getModule(
-          resolveModulePaths(module.path, localSymbol.type.source),
+          resolveModulePaths(module.path, localSymbol.type.source)
         );
 
         if (!nextModule) {
@@ -85,13 +85,13 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
         return resolveSymbol(
           `export::${localSymbol.type.sourceName}`,
-          nextModule,
+          nextModule
         );
       }
 
       if (localSymbol.type.type === 'ImportDefaultSpecifier') {
         const nextModule = getModule(
-          resolveModulePaths(module.path, localSymbol.type.source),
+          resolveModulePaths(module.path, localSymbol.type.source)
         );
 
         if (!nextModule) {
@@ -107,7 +107,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
       if (localSymbol.type.type === 'ExportSpecifier') {
         const nextModule = getModule(
-          resolveModulePaths(module.path, localSymbol.type.source),
+          resolveModulePaths(module.path, localSymbol.type.source)
         );
 
         if (!nextModule) {
@@ -120,7 +120,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
         return resolveSymbol(
           `export::${localSymbol.type.sourceName}`,
-          nextModule,
+          nextModule
         );
       }
 
@@ -129,14 +129,14 @@ function createSchema(dataSource, {resolveModulePaths}) {
         module,
       };
     },
-    (n, m) => n + m.path,
+    (n, m) => n + m.path
   );
 
   const getComponentFromResolvedSymbol = memoize(
     resolvedSymbol => {
       const component = find(
         resolvedSymbol.module.data.components,
-        c => c.name === resolvedSymbol.name,
+        c => c.name === resolvedSymbol.name
       );
 
       if (component) {
@@ -145,7 +145,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
       const componentPath = find(
         resolvedSymbol.module.data.potentialComponentPaths,
-        cp => cp.name === resolvedSymbol.name,
+        cp => cp.name === resolvedSymbol.name
       );
 
       // absolutely no paths :(
@@ -158,7 +158,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
       const target = last(componentPath.targets);
       const resolvedComponent = resolveComponentByName(
         target.name,
-        resolvedSymbol.module,
+        resolvedSymbol.module
       );
 
       // Does this break things by being path specific return value?
@@ -167,7 +167,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
         pathEnhancements: componentPath.enhancements,
       });
     },
-    s => s.name + s.module.path,
+    s => s.name + s.module.path
   );
 
   const resolveComponentByName = memoize(
@@ -186,7 +186,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
 
       return getComponentFromResolvedSymbol(symbol) || null;
     },
-    (n, m) => n + m.path,
+    (n, m) => n + m.path
   );
 
   const resolveComponent = memoize(
@@ -198,7 +198,7 @@ function createSchema(dataSource, {resolveModulePaths}) {
         usages => {
           const resolvedComponent = resolveComponentByName(
             usages[0].name,
-            module,
+            module
           );
 
           return {
@@ -207,21 +207,21 @@ function createSchema(dataSource, {resolveModulePaths}) {
             usages: map(usages, u =>
               Object.assign({}, u, {component: resolvedComponent})),
           };
-        },
+        }
       );
 
       return Object.assign({}, component, {
         resolvedDeps,
       });
     },
-    (c, m) => c.id + m.path,
+    (c, m) => c.id + m.path
   );
 
   const allResolvedComponents = memoize(() => {
     return flatten(
       getModules().map(module =>
         module.data.components.map(component =>
-          resolveComponent(component, module))),
+          resolveComponent(component, module)))
     );
   });
 
@@ -233,17 +233,17 @@ function createSchema(dataSource, {resolveModulePaths}) {
         all
           .filter(c =>
             c.resolvedDeps.find(
-              depC => depC.component && depC.component.id === component.id,
+              depC => depC.component && depC.component.id === component.id
             ))
           .map(c =>
             c.resolvedDeps
               .filter(
-                depC => depC.component && depC.component.id === component.id,
+                depC => depC.component && depC.component.id === component.id
               )
-              .map(depC => Object.assign({}, depC, {component: c}))),
+              .map(depC => Object.assign({}, depC, {component: c})))
       );
     },
-    c => c.id,
+    c => c.id
   );
 
   // SCHEMA -------------------------------------------------------------------

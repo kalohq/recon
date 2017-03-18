@@ -27,7 +27,7 @@ describe('utils/react/isReactComponent', () => {
       'ClassDeclaration',
       `class MyComponent {
       render() {}
-    }`,
+    }`
     );
     expect(isReactComponent(node)).toBe(true);
   });
@@ -37,7 +37,7 @@ describe('utils/react/isReactComponent', () => {
       'FunctionDeclaration',
       `function MyComponent() {
       return <div>Test</div>;
-    }`,
+    }`
     );
     expect(isReactComponent(node)).toBe(true);
   });
@@ -47,7 +47,7 @@ describe('utils/react/isReactComponent', () => {
       'FunctionExpression',
       `const MyComponent = function() {
       return <div>Test</div>;
-    }`,
+    }`
     );
     expect(isReactComponent(node)).toBe(true);
   });
@@ -55,7 +55,7 @@ describe('utils/react/isReactComponent', () => {
   it('should identify arrow function expressions', () => {
     const node = parse(
       'ArrowFunctionExpression',
-      `const MyComponent = () => <div>Test</div>;`,
+      `const MyComponent = () => <div>Test</div>;`
     );
     expect(isReactComponent(node)).toBe(true);
   });
@@ -63,7 +63,7 @@ describe('utils/react/isReactComponent', () => {
   it('should NOT identify arrow function expressions without JSX', () => {
     const node = parse(
       'ArrowFunctionExpression',
-      `const MyComponent = () => true;`,
+      `const MyComponent = () => true;`
     );
     expect(isReactComponent(node)).toBe(false);
   });
@@ -73,7 +73,7 @@ describe('utils/react/isReactComponent', () => {
       'FunctionDeclaration',
       `function MyComponent() {
       return null;
-    }`,
+    }`
     );
     expect(isReactComponent(node)).toBe(false);
   });
