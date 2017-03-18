@@ -4,7 +4,7 @@
   "scripts": {
     "test:lint": "eslint **/*.js --cache --cache-location .tmp/eslint/",
     "test:type": "flow",
-    "test:unit": "jest",
+    "test:unit": "jest --forceExit",
     "test": "npm run test:lint && npm run test:type && npm run test:unit",
     "pub": "npm run test && lerna publish",
     "bootstrap": "lerna bootstrap",
