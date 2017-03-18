@@ -14,15 +14,16 @@ function parseSource(moduleSource) {
       'objectRestSpread',
       'asyncFunctions',
       'classConstructorCall',
-      'doExpessions',
+      'doExpressions',
       'trailingFunctionCommas',
       'decorators',
       'classProperties',
-      'exportExtentions',
+      'exportExtensions',
       'exponentiationOperator',
       'asyncGenerators',
       'functionBind',
       'functionSent',
+      'dynamicImport',
       // keep up-to-date
     ],
   });
