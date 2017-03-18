@@ -17,7 +17,8 @@ function configFromWebpack(webpackConfig, {cwd = process.cwd()} = {}) {
 
     const roots = webpackConfig.resolve.root || webpackConfig.resolve.roots; // support v1 & v2
     if (roots) {
-      resolve.roots = roots.map(p => Path.relative(webpackConfig.context || cwd, p));
+      resolve.roots = roots.map(p =>
+        Path.relative(webpackConfig.context || cwd, p));
     }
 
     config.resolve = resolve;

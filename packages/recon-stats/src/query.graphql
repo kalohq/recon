@@ -16,6 +16,9 @@
         pathEnhancements {
           type
         }
+        module {
+          path
+        }
       },
       usages {
         props {
@@ -29,6 +32,9 @@
       component {
         id,
         name,
+        module {
+          path
+        }
       }
       usages {
         props {

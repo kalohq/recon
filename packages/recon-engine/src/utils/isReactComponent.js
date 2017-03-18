@@ -26,12 +26,14 @@ function containsJSX(node) {
 
 /** Is given path a react component declaration? */
 function isReactComponent(node) {
-
   // TODO: Is there a stronger way of determining a "react component"?
   // TODO: Accept React.createClass() (unless there is plans to deprecate in *near* future?)
 
   if (T.isClassDeclaration(node)) {
-    return !!find(node.body.body, bNode => T.isClassMethod(bNode) && bNode.key.name === 'render');
+    return !!find(
+      node.body.body,
+      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render',
+    );
   }
 
   if (T.isFunctionDeclaration(node)) {

@@ -19,9 +19,6 @@
   },
   "homepage": "https://github.com/lystable/recon",
   "dependencies": {
-    "fs-jetpack": "^0.9.2"
-  },
-  "devDependencies": {
-    "expect": "1.20.2"
+    "fs-jetpack": "0.13.1"
   }
 }

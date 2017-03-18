@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should respond to query as expected: basic-app 1`] = `
+Object {
+  "errors": Array [
+    [GraphQLError: Syntax Error GraphQL request (1:2) Expected Name, found }
+
+1: {}
+    ^
+2: 
+],
+  ],
+}
+`;

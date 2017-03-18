@@ -10,17 +10,15 @@ function UserItem({user}) {
       <span>{user.name}</span>
       <Button theme="danger">Remove User</Button>
     </ListItem>
-  )
+  );
 }
 
 export default function UserList({users}) {
   return (
     <List type="grid">
       {users.map(user => {
-        return (
-          <UserItem user={user} key={user.id} />
-        );
+        return <UserItem user={user} key={user.id} />;
       })}
     </List>
-  )
+  );
 }

@@ -6,7 +6,7 @@ export function ListItem({type, children}) {
     <li>
       {children}
     </li>
-  )
+  );
 }
 
 export default function List({children, type}) {
@@ -14,5 +14,5 @@ export default function List({children, type}) {
     <ul>
       {children}
     </ul>
-  )
+  );
 }

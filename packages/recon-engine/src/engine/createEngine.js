@@ -34,32 +34,40 @@ function createResolver(
   {
     roots: _roots = [cwd],
     extensions = ['.js', '.jsx'],
-  } = {}
+  } = {},
 ) {
   // TODO: Support "aliases" (eg. webpack aliases)
   const roots = _roots.map(r => Path.resolve(cwd, r));
-  return memoize((context, target) => {
-    const resolveFromPaths = [
-      Path.dirname(context),
-      ...roots,
-    ];
-    const resolvedPaths = resolveFromPaths.map(path => Path.resolve(path, target));
-    const finalPaths = /\.[a-zA-Z0-9]$/.test(target) // has extension
-      ? resolvedPaths
-      : flatten(resolvedPaths.map(p => [...extensions.map(ext => `${p}${ext}`), Path.resolve(p, 'index.js')]));
+  return memoize(
+    (context, target) => {
+      const resolveFromPaths = [Path.dirname(context), ...roots];
+      const resolvedPaths = resolveFromPaths.map(path =>
+        Path.resolve(path, target));
+      const finalPaths = /\.[a-zA-Z0-9]$/.test(target) // has extension
+        ? resolvedPaths
+        : flatten(
+            resolvedPaths.map(p => [
+              ...extensions.map(ext => `${p}${ext}`),
+              Path.resolve(p, 'index.js'),
+            ]),
+          );
 
-    return finalPaths;
-  }, join);
+      return finalPaths;
+    },
+    join,
+  );
 }
 
 /** Create a new engine instance */
-function createEngine({
-  files,
-  context: _rawContext = '',
-  cwd = process.cwd(),
-  resolve,
-  exclude = '/node_modules/',
-}) {
+function createEngine(
+  {
+    files,
+    context: _rawContext = '',
+    cwd = process.cwd(),
+    resolve,
+    exclude = '/node_modules/',
+  },
+) {
   const subscriptions = [];
   const modules = {};
   let hasDiscovered = false;
@@ -71,13 +79,14 @@ function createEngine({
   // TODO: Cache parsed modules
   // TODO: Add persisted/watching support
 
-  glob(files, {cwd: context}).then((rawFoundFiles) => {
+  glob(files, {cwd: context}).then(rawFoundFiles => {
     hasDiscovered = true;
 
     const foundFiles = filter(rawFoundFiles, path => !excludeRegexp.test(path));
     forEach(foundFiles, file => {
       const path = Path.resolve(context, file);
-      const module = modules[file] = {ready: false, file, path};
+      const module = {ready: false, file, path};
+      modules[file] = module;
 
       Jetpack.readAsync(path, 'utf8').then(
         src => {
@@ -90,7 +99,7 @@ function createEngine({
           module.ready = true;
           module.error = error;
           send();
-        }
+        },
       );
     });
 

@@ -10,7 +10,7 @@ function NoteItem({note}) {
       <Avatar src={note.created_by.img} />
       <p>{note.content}</p>
     </ListItem>
-  )
+  );
 }
 
 export function Notes({notes}) {
@@ -19,22 +19,20 @@ export function Notes({notes}) {
       <h2>Notes</h2>
       <List type="grid">
         {notes.map(user => {
-          return (
-            <NoteItem note={note} key={user.id} />
-          );
+          return <NoteItem note={note} key={user.id} />;
         })}
       </List>
     </div>
-  )
+  );
 }
 
 const contain = createContainer({
   queries: {
     invoices: q.many(Note, {
-      params: (vars) => ({
+      params: vars => ({
         filter: {
-          parent: vars.parent
-        }
+          parent: vars.parent,
+        },
       }),
       fields: {
         content: true,

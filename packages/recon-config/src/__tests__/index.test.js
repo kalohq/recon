@@ -1,12 +1,7 @@
-/* eslint-env mocha */
-/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
-const expect = require('expect');
-
+/* eslint-env jest */
 const api = require('../index');
 
-describe('recon-config::index', () => {
-  it('should provide expected api', () => {
-    expect(api.getConfig).toBeA(Function);
-    expect(api.createConfig).toBeA(Function);
-  });
+it('should provide expected api', () => {
+  expect(api.getConfig).toBeInstanceOf(Function);
+  expect(api.createConfig).toBeInstanceOf(Function);
 });

@@ -20,7 +20,7 @@ const {
   filter,
 } = require('lodash');
 
-const makeDOMComponent = memoize((name) => {
+const makeDOMComponent = memoize(name => {
   // TODO: We should *probably* have resolved these within parse when we see a dom reference?
   return {
     id: `__REACT_DOM::${name}`,
@@ -33,11 +33,7 @@ const makeDOMComponent = memoize((name) => {
   };
 });
 
-function createSchema(
-  dataSource,
-  {resolveModulePaths}
-) {
-
+function createSchema(dataSource, {resolveModulePaths}) {
   // TODO: Need to invalidate memoizing as modules are re-parsed (ie. support persisted engine)
 
   // RESOLUTION ---------------------------------------------------------------
@@ -51,197 +47,211 @@ function createSchema(
     return flatten(map(getModules(), m => m.data.components));
   });
 
-  const getModule = memoize((paths) => {
-    return find(getModules(), m => find(paths, path => path === m.path));
-  }, p => join(p));
+  const getModule = memoize(
+    paths => {
+      return find(getModules(), m => find(paths, path => path === m.path));
+    },
+    p => join(p),
+  );
 
-  const resolveSymbol = memoize((name, module) => {
-    const localSymbol = module.data.symbols.find(s => s.name === name);
+  const resolveSymbol = memoize(
+    (name, module) => {
+      const localSymbol = module.data.symbols.find(s => s.name === name);
 
-    if (!localSymbol) {
+      if (!localSymbol) {
+        return {
+          name,
+          module,
+          notFound: true,
+        };
+      }
+
+      if (localSymbol.type.type === 'Identifier') {
+        return resolveSymbol(localSymbol.type.__node.name, module);
+      }
+
+      if (localSymbol.type.type === 'ImportSpecifier') {
+        const nextModule = getModule(
+          resolveModulePaths(module.path, localSymbol.type.source),
+        );
+
+        if (!nextModule) {
+          return {
+            name,
+            module,
+            notFound: true,
+          };
+        }
+
+        return resolveSymbol(
+          `export::${localSymbol.type.sourceName}`,
+          nextModule,
+        );
+      }
+
+      if (localSymbol.type.type === 'ImportDefaultSpecifier') {
+        const nextModule = getModule(
+          resolveModulePaths(module.path, localSymbol.type.source),
+        );
+
+        if (!nextModule) {
+          return {
+            name,
+            module,
+            notFound: true,
+          };
+        }
+
+        return resolveSymbol('export::default', nextModule);
+      }
+
+      if (localSymbol.type.type === 'ExportSpecifier') {
+        const nextModule = getModule(
+          resolveModulePaths(module.path, localSymbol.type.source),
+        );
+
+        if (!nextModule) {
+          return {
+            name,
+            module,
+            notFound: true,
+          };
+        }
+
+        return resolveSymbol(
+          `export::${localSymbol.type.sourceName}`,
+          nextModule,
+        );
+      }
+
       return {
         name,
         module,
-        notFound: true,
       };
-    }
+    },
+    (n, m) => n + m.path,
+  );
 
-    if (localSymbol.type.type === 'Identifier') {
-      return resolveSymbol(localSymbol.type.__node.name, module);
-    }
-
-    if (localSymbol.type.type === 'ImportSpecifier') {
-      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
-
-      if (!nextModule) {
-        return {
-          name,
-          module,
-          notFound: true,
-        };
-      }
-
-      return resolveSymbol(
-        `export::${localSymbol.type.sourceName}`,
-        nextModule
+  const getComponentFromResolvedSymbol = memoize(
+    resolvedSymbol => {
+      const component = find(
+        resolvedSymbol.module.data.components,
+        c => c.name === resolvedSymbol.name,
       );
-    }
 
-    if (localSymbol.type.type === 'ImportDefaultSpecifier') {
-      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
-
-      if (!nextModule) {
-        return {
-          name,
-          module,
-          notFound: true,
-        };
+      if (component) {
+        return component;
       }
 
-      return resolveSymbol(
-        'export::default',
-        nextModule
+      const componentPath = find(
+        resolvedSymbol.module.data.potentialComponentPaths,
+        cp => cp.name === resolvedSymbol.name,
       );
-    }
 
-    if (localSymbol.type.type === 'ExportSpecifier') {
-      const nextModule = getModule(resolveModulePaths(module.path, localSymbol.type.source));
-
-      if (!nextModule) {
-        return {
-          name,
-          module,
-          notFound: true,
-        };
+      // absolutely no paths :(
+      if (!componentPath) {
+        return null;
       }
 
-      return resolveSymbol(
-        `export::${localSymbol.type.sourceName}`,
-        nextModule
+      // Only taking the *last* potential component here. Really we should be
+      // able to offer all of them as potential components Ie. branching
+      const target = last(componentPath.targets);
+      const resolvedComponent = resolveComponentByName(
+        target.name,
+        resolvedSymbol.module,
       );
-    }
 
-    return {
-      name,
-      module,
-    };
-  }, (n, m) => n + m.path);
+      // Does this break things by being path specific return value?
+      // Maybe not since within this module the given symbol would always have the same enhancement path.
+      return Object.assign({}, resolvedComponent, {
+        pathEnhancements: componentPath.enhancements,
+      });
+    },
+    s => s.name + s.module.path,
+  );
 
-  const getComponentFromResolvedSymbol = memoize((resolvedSymbol) => {
-    const component = find(resolvedSymbol.module.data.components,
-      c => c.name === resolvedSymbol.name
-    );
-
-    if (component) {
-      return component;
-    }
-
-    const componentPath = find(
-      resolvedSymbol.module.data.potentialComponentPaths,
-      cp => cp.name === resolvedSymbol.name
-    );
-
-    // absolutely no paths :(
-    if (!componentPath) {
-      return null;
-    }
-
-    // Only taking the *last* potential component here. Really we should be
-    // able to offer all of them as potential components Ie. branching
-    const target = last(componentPath.targets);
-    const resolvedComponent = resolveComponentByName(target.name, resolvedSymbol.module);
-
-    // Does this break things by being path specific return value?
-    // Maybe not since within this module the given symbol would always have the same enhancement path.
-    return Object.assign({}, resolvedComponent, {
-      pathEnhancements: componentPath.enhancements,
-    });
-  }, s => s.name + s.module.path);
-
-  const resolveComponentByName = memoize((name, module) => {
-    // JSX Convention says if the identifier begins lowercase it is
-    // a dom node rather than a custom component
-    if (/^[a-z][a-z0-9]*/.test(name)) {
-      return makeDOMComponent(name);
-    }
-
-    const symbol = resolveSymbol(name, module);
-
-    if (symbol.notFound) {
-      return null;
-    }
-
-    return getComponentFromResolvedSymbol(symbol) || null;
-  }, (n, m) => n + m.path);
-
-  const resolveComponent = memoize((component, module) => {
-
-    // TODO: Need to track/resolve enhancement paths via usage
-
-    const resolvedDeps = map(
-      values(groupBy(component.deps, 'name')),
-      usages => {
-        const resolvedComponent = resolveComponentByName(usages[0].name, module);
-
-        return {
-          name: usages[0].name,
-          component: resolvedComponent,
-          usages: map(usages, u => Object.assign({}, u, {component: resolvedComponent})),
-        };
+  const resolveComponentByName = memoize(
+    (name, module) => {
+      // JSX Convention says if the identifier begins lowercase it is
+      // a dom node rather than a custom component
+      if (/^[a-z][a-z0-9]*/.test(name)) {
+        return makeDOMComponent(name);
       }
-    );
 
-    return Object.assign({}, component, {
-      resolvedDeps,
-    });
-  }, (c, m) => c.id + m.path);
+      const symbol = resolveSymbol(name, module);
+
+      if (symbol.notFound) {
+        return null;
+      }
+
+      return getComponentFromResolvedSymbol(symbol) || null;
+    },
+    (n, m) => n + m.path,
+  );
+
+  const resolveComponent = memoize(
+    (component, module) => {
+      // TODO: Need to track/resolve enhancement paths via usage
+
+      const resolvedDeps = map(
+        values(groupBy(component.deps, 'name')),
+        usages => {
+          const resolvedComponent = resolveComponentByName(
+            usages[0].name,
+            module,
+          );
+
+          return {
+            name: usages[0].name,
+            component: resolvedComponent,
+            usages: map(usages, u =>
+              Object.assign({}, u, {component: resolvedComponent})),
+          };
+        },
+      );
+
+      return Object.assign({}, component, {
+        resolvedDeps,
+      });
+    },
+    (c, m) => c.id + m.path,
+  );
 
   const allResolvedComponents = memoize(() => {
-    return flatten(getModules().map(
-      module => module.data.components.map(
-        component => resolveComponent(component, module)
-      )
-    ));
+    return flatten(
+      getModules().map(module =>
+        module.data.components.map(component =>
+          resolveComponent(component, module))),
+    );
   });
 
-  const resolveComponentDependants = memoize((component) => {
-    const all = allResolvedComponents();
+  const resolveComponentDependants = memoize(
+    component => {
+      const all = allResolvedComponents();
 
-    return flatten(all.filter(
-      c => c.resolvedDeps.find(
-        depC => depC.component && depC.component.id === component.id
-      )
-    ).map(
-      c => c.resolvedDeps.filter(
-        depC => depC.component && depC.component.id === component.id
-      ).map(
-        depC => Object.assign({}, depC, {component: c})
-      )
-    ));
-  }, c => c.id);
+      return flatten(
+        all
+          .filter(c =>
+            c.resolvedDeps.find(
+              depC => depC.component && depC.component.id === component.id,
+            ))
+          .map(c =>
+            c.resolvedDeps
+              .filter(
+                depC => depC.component && depC.component.id === component.id,
+              )
+              .map(depC => Object.assign({}, depC, {component: c}))),
+      );
+    },
+    c => c.id,
+  );
 
   // SCHEMA -------------------------------------------------------------------
-
-  const symbolType = new GraphQLObjectType({
-    name: 'SymbolType',
-    fields: () => ({
-      name: {type: GraphQLString},
-    }),
-  });
-
-  const moduleDataType = new GraphQLObjectType({
-    name: 'ModuleDataType',
-    fields: () => ({
-      symbols: {type: new GraphQLList(symbolType)},
-      components: {type: new GraphQLList(componentType)},
-    }),
-  });
 
   const moduleType = new GraphQLObjectType({
     name: 'ModuleType',
     fields: () => ({
       path: {type: GraphQLString},
-      data: {type: moduleDataType},
     }),
   });
 
@@ -251,7 +261,7 @@ function createSchema(
       name: {type: GraphQLString},
       valueType: {
         type: GraphQLString,
-        resolve: (prop) => prop.type.type,
+        resolve: prop => prop.type.type,
       },
     }),
   });
@@ -298,7 +308,7 @@ function createSchema(
       name: {type: GraphQLString},
       dependencies: {
         type: new GraphQLList(componentDependencyType),
-        resolve: (component) => {
+        resolve: component => {
           const all = allResolvedComponents();
 
           return find(all, c => c.id === component.id).resolvedDeps;
@@ -317,7 +327,8 @@ function createSchema(
       },
       module: {
         type: moduleType,
-        resolve: (component) => getModules().find(m => m.path === component.definedIn),
+        resolve: component =>
+          getModules().find(m => m.path === component.definedIn),
       },
     }),
   });

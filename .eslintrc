@@ -1,20 +1,19 @@
 {
-  "parser": "babel-eslint",
   "plugins": [
-    "react",
-    "flow-vars"
+    "flowtype"
   ],
-  "extends": "lystable",
+  "extends": [
+    "lystable",
+    "prettier",
+    "plugin:flowtype/recommended",
+    "prettier",
+    "prettier/flowtype"
+  ],
   "env": {
     "node": true
   },
-  "globals": {
-    "__DEBUG__": true
-  },
   "rules": {
     "max-len": [2, 140],
-    "flow-vars/define-flow-type": 1,
-    "flow-vars/use-flow-type": 1,
     "spaced-comment": 0,
     "arrow-body-style": 0,
     "no-confusing-arrow": 0

@@ -6,14 +6,17 @@ const http = require('http');
 function createServer(engine, {port = 4000} = {}) {
   const app = express();
 
-  app.use('/graphql', graphqlHTTP({
-    schema: engine.schema,
-    graphiql: true,
-  }));
+  app.use(
+    '/graphql',
+    graphqlHTTP({
+      schema: engine.schema,
+      graphiql: true,
+    }),
+  );
 
   const server = http.createServer(app);
 
-  return new Promise((accept) => {
+  return new Promise(accept => {
     server.listen(port, () => {
       accept(server);
     });

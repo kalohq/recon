@@ -47,9 +47,7 @@ function pullSymbols(ast) {
   }
 
   function pushVariableDeclaration(node) {
-    node.declarations.forEach(
-      declNode => pushVariableDeclarator(declNode)
-    );
+    node.declarations.forEach(declNode => pushVariableDeclarator(declNode));
   }
 
   function pushFunctionDeclaration(node) {
@@ -85,12 +83,11 @@ function pullSymbols(ast) {
       });
     } else if (T.isVariableDeclaration(node)) {
       pushVariableDeclaration(node);
-      node.declarations.forEach(
-        declNode => symbols.push({
+      node.declarations.forEach(declNode =>
+        symbols.push({
           name: `export::${declNode.id.name}`,
           type: resolveType(declNode.id),
-        })
-      );
+        }));
     } else if (T.isClassDeclaration(node)) {
       pushClassDeclaration(node);
       symbols.push({
@@ -105,9 +102,8 @@ function pullSymbols(ast) {
       pushExportDeclaration(node.declaration);
     } else {
       const source = node.source ? node.source.value : undefined;
-      node.specifiers.forEach(
-        spec => pushExportSpecifier(spec, {source, sourceName: spec.local.name})
-      );
+      node.specifiers.forEach(spec =>
+        pushExportSpecifier(spec, {source, sourceName: spec.local.name}));
     }
   }
 
@@ -122,12 +118,11 @@ function pullSymbols(ast) {
       });
     } else if (T.isVariableDeclaration(decl)) {
       pushVariableDeclaration(decl);
-      decl.declarations.forEach(
-        vDecl => symbols.push({
+      decl.declarations.forEach(vDecl =>
+        symbols.push({
           name: `export::default`,
           type: resolveType(vDecl.id),
-        })
-      );
+        }));
     } else if (T.isClassDeclaration(decl)) {
       pushClassDeclaration(decl);
       symbols.push({
@@ -144,12 +139,13 @@ function pullSymbols(ast) {
 
   function pushImportDeclaration(node) {
     const source = node.source.value;
-    node.specifiers.forEach(
-      spec => symbols.push({
-        name: T.isIdentifier(spec.exported) ? spec.exported.value : spec.local.name,
+    node.specifiers.forEach(spec =>
+      symbols.push({
+        name: T.isIdentifier(spec.exported)
+          ? spec.exported.value
+          : spec.local.name,
         type: resolveType(spec, {source, sourceName: spec.local.name}),
-      })
-    );
+      }));
   }
 
   const visitor = {
@@ -205,19 +201,20 @@ function pullDeps(ast) {
         name,
         selfClosing: path.node.openingElement.selfClosing,
         props: path.node.openingElement.attributes.map(
-          attr => T.isJSXSpreadAttribute(attr)
-            ? ({
-              name: '__spread',
-              type: resolveType(attr.argument),
-            })
-            : ({
-              name: attr.name.name,
-              // TODO: see if we can find  union of possible values. Eg. color = someVar ? 'green' : 'red'
-              // TODO: for simple identifier types we could sometimes resolve to component prop types
-              type: T.isJSXExpressionContainer(attr.value)
-                ? resolveType(attr.value.expression)
-                : resolveType(attr.value),
-            })
+          attr =>
+            T.isJSXSpreadAttribute(attr)
+              ? {
+                  name: '__spread',
+                  type: resolveType(attr.argument),
+                }
+              : {
+                  name: attr.name.name,
+                  // TODO: see if we can find  union of possible values. Eg. color = someVar ? 'green' : 'red'
+                  // TODO: for simple identifier types we could sometimes resolve to component prop types
+                  type: T.isJSXExpressionContainer(attr.value)
+                    ? resolveType(attr.value.expression)
+                    : resolveType(attr.value),
+                },
         ),
       });
     },
@@ -256,9 +253,9 @@ function shouldPullComponent(path) {
     }
 
     if (
-      !T.isExportDefaultDeclaration(tPath)
-      && !T.isExportNamedDeclaration(tPath)
-      && !T.isVariableDeclaration(tPath)
+      !T.isExportDefaultDeclaration(tPath) &&
+      !T.isExportNamedDeclaration(tPath) &&
+      !T.isVariableDeclaration(tPath)
     ) {
       break;
     }
@@ -280,7 +277,9 @@ function getRenderMethod(node) {
   }
 
   if (T.isClassDeclaration(node)) {
-    return node.body.body.find(bNode => T.isClassMethod(bNode) && bNode.key.name === 'render');
+    return node.body.body.find(
+      bNode => T.isClassMethod(bNode) && bNode.key.name === 'render',
+    );
   }
 
   throw new Error('Unsupported component definition :S');
@@ -296,10 +295,7 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
     if (isReactComponent(path.node)) {
       const renderMethod = getRenderMethod(path.node);
 
-      if (
-        T.isArrowFunctionExpression(path)
-        || T.isFunctionExpression(path)
-      ) {
+      if (T.isArrowFunctionExpression(path) || T.isFunctionExpression(path)) {
         // for expressions we need to find the parent variable
         // declarator in order to name it. As we traverse we can
         // also gather "enhancements"
@@ -361,7 +357,6 @@ function pullStaticComponents(ast, {globalId, definedIn}) {
       }
 
       // TODO: Pull more meta data... eg. attached docblocs etc
-
     }
 
     path.skip();
@@ -397,49 +392,48 @@ function getReturnValue(ast) {
 
 /** Search for dynamically created components within our ast */
 function pullDynamicComponents(symbols, {globalId, definedIn}) {
-  return symbols.map(sym => {
-    const call = sym.type.__node;
-    if (!T.isCallExpression(call)) {
-      return null;
-    }
+  return symbols
+    .map(sym => {
+      const call = sym.type.__node;
+      if (!T.isCallExpression(call)) {
+        return null;
+      }
 
-    // only handle function calls atm, looking into obj/methods later...
-    if (!T.isIdentifier(call.callee)) {
-      return null;
-    }
+      // only handle function calls atm, looking into obj/methods later...
+      if (!T.isIdentifier(call.callee)) {
+        return null;
+      }
 
-    // search for local symbol which is a function. This is all (local) we'll
-    // support for now. Perhaps this will need to move to resolve later.
-    const creator = symbols.find(s => s.name === call.callee.name);
-    if (
-      !creator ||
-      (
-        !T.isFunctionDeclaration(creator.type.__node) &&
-        !T.isFunctionExpression(creator.type.__node)
-      )
-    ) {
-      return null;
-    }
+      // search for local symbol which is a function. This is all (local) we'll
+      // support for now. Perhaps this will need to move to resolve later.
+      const creator = symbols.find(s => s.name === call.callee.name);
+      if (
+        !creator ||
+        (!T.isFunctionDeclaration(creator.type.__node) &&
+          !T.isFunctionExpression(creator.type.__node))
+      ) {
+        return null;
+      }
 
-    // TODO: Maybe support multiple definitions?
-    const returnValue = getReturnValue(creator.type.__node.body);
-    if (!returnValue || !isReactComponent(returnValue)) {
-      return null;
-    }
+      // TODO: Maybe support multiple definitions?
+      const returnValue = getReturnValue(creator.type.__node.body);
+      if (!returnValue || !isReactComponent(returnValue)) {
+        return null;
+      }
 
-    const renderMethod = getRenderMethod(returnValue);
-    return {
-      id: globalId(sym.name),
-      name: sym.name,
-      type: resolveType(returnValue),
-      enhancements: [],
-      props: [], // TODO: findProps(path),
-      deps: pullDeps(renderMethod),
-      createdBy: creator,
-      definedIn,
-    };
-
-  }).filter(c => !!c);
+      const renderMethod = getRenderMethod(returnValue);
+      return {
+        id: globalId(sym.name),
+        name: sym.name,
+        type: resolveType(returnValue),
+        enhancements: [],
+        props: [], // TODO: findProps(path),
+        deps: pullDeps(renderMethod),
+        createdBy: creator,
+        definedIn,
+      };
+    })
+    .filter(c => !!c);
 }
 
 /** Pull all Identifier nodes within an ast */
@@ -479,22 +473,23 @@ function getCallExpressions(ast) {
  * Ie. Could simply be reference to or an enhancement path
  */
 function getPotentialComponentPaths(symbols, components) {
-  return symbols.map(
-    sym => {
+  return symbols
+    .map(sym => {
       return T.isCallExpression(sym.type.__node)
         ? {
-          name: sym.name,
-          enhancements: [sym.type.__node, ...getCallExpressions(sym.type.__node)],
-          // TODO: What if we had another intermediate enhancement path? we wouldn't find the component definition
-          targets: getIdentifiers(sym.type.__node).filter(
-            i => components.find(c => c.name === i.name)
-          ).map(
-            i => ({name: i.name, type: resolveType(i)})
-          ),
-        }
+            name: sym.name,
+            enhancements: [
+              sym.type.__node,
+              ...getCallExpressions(sym.type.__node),
+            ],
+            // TODO: What if we had another intermediate enhancement path? we wouldn't find the component definition
+            targets: getIdentifiers(sym.type.__node)
+              .filter(i => components.find(c => c.name === i.name))
+              .map(i => ({name: i.name, type: resolveType(i)})),
+          }
         : {targets: []};
-    }
-  ).filter(a => !!a.targets.length);
+    })
+    .filter(a => !!a.targets.length);
 }
 
 /** Pull structured data from an ast */
@@ -503,7 +498,11 @@ function pullData(ast, opts) {
   const staticComponents = pullStaticComponents(ast, opts);
   const dynamicComponents = pullDynamicComponents(symbols, opts);
   const components = staticComponents.concat(dynamicComponents);
-  const potentialComponentPaths = getPotentialComponentPaths(symbols, components, opts);
+  const potentialComponentPaths = getPotentialComponentPaths(
+    symbols,
+    components,
+    opts,
+  );
 
   return {
     symbols,

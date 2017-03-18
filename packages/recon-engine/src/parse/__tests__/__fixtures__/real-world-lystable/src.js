@@ -44,13 +44,11 @@ import {
   saveTalentRequest,
 } from 'actions/talent-request-actions';
 
-
 // State
 
 export const State = new Record({
   editing: false,
 });
-
 
 // Actions
 
@@ -70,51 +68,38 @@ export const reducer = (state, action) => {
   }
 };
 
-
 // View
 
 /* Render talent reqiest updates */
-export function UpdatesCard({
-  talentRequest,
-  ...otherProps
-}) {
+export function UpdatesCard(
+  {
+    talentRequest,
+    ...otherProps
+  },
+) {
   return (
     <Box {...otherProps}>
-      <CardHeader
-        locked={true}
-        title="Updates"
-        justify="flex-start"
-      />
+      <CardHeader locked={true} title="Updates" justify="flex-start" />
       <Paper padded={true}>
         <Flex flexDirection="column">
-          {!!talentRequest.final_candidate ? (
-            <Flex
-              flexDirection="row"
-              marginBottom={20}
-            >
-              <Flex marginRight={15}>
-                <Avatar size="medium" record={talentRequest.final_candidate.supplier} />
+          {!!talentRequest.final_candidate
+            ? <Flex flexDirection="row" marginBottom={20}>
+                <Flex marginRight={15}>
+                  <Avatar
+                    size="medium"
+                    record={talentRequest.final_candidate.supplier}
+                  />
+                </Flex>
+                <Flex flexDirection="column">
+                  <Text weight="semi-bold">Selected Candidate</Text>
+                  <Text>{talentRequest.final_candidate.supplier.name}</Text>
+                </Flex>
               </Flex>
-              <Flex flexDirection="column">
-                <Text weight="semi-bold">Selected Candidate</Text>
-                <Text>{talentRequest.final_candidate.supplier.name}</Text>
-              </Flex>
-            </Flex>
-          ) : null }
+            : null}
 
-          <Flex
-            flexDirection="row"
-            alignItems="center"
-          >
-            <Flex
-              width="45px"
-              marginRight={15}
-              justifyContent="center"
-            >
-              <Text
-                size="extra-large"
-                weight="extra-light"
-              >
+          <Flex flexDirection="row" alignItems="center">
+            <Flex width="45px" marginRight={15} justifyContent="center">
+              <Text size="extra-large" weight="extra-light">
                 {talentRequest.candidates.size}
               </Text>
             </Flex>
@@ -122,19 +107,9 @@ export function UpdatesCard({
           </Flex>
         </Flex>
 
-        <Flex
-          flexDirection="row"
-          alignItems="center"
-        >
-          <Flex
-            width="45px"
-            marginRight={15}
-            justifyContent="center"
-          >
-            <Text
-              size="extra-large"
-              weight="extra-light"
-            >
+        <Flex flexDirection="row" alignItems="center">
+          <Flex width="45px" marginRight={15} justifyContent="center">
+            <Text size="extra-large" weight="extra-light">
               {talentRequest.agencies.size}
             </Text>
           </Flex>
@@ -146,29 +121,30 @@ export function UpdatesCard({
   );
 }
 
-
-export function AgencyChecklist({
-  talentRequest,
-  agencies,
-  onCreated,
-  createAgencyTalentRequestAction
-}) {
-
-  const items = agencies.map((agency) => {
+export function AgencyChecklist(
+  {
+    talentRequest,
+    agencies,
+    onCreated,
+    createAgencyTalentRequestAction,
+  },
+) {
+  const items = agencies.map(agency => {
     // Check if the agency is already attached
-    const existingAgency = talentRequest.agencies.find((_agency) => (
-        !!_agency && matchRecord(agency, _agency)
-      )
+    const existingAgency = talentRequest.agencies.find(
+      _agency => !!_agency && matchRecord(agency, _agency),
     );
 
     return {
       checked: !!existingAgency,
       label: agency.name,
       checkAction: () => {
-        createAgencyTalentRequestAction(new AgencyTalentRequest({
-          talent_request: talentRequest,
-          agency
-        })).then(() => {
+        createAgencyTalentRequestAction(
+          new AgencyTalentRequest({
+            talent_request: talentRequest,
+            agency,
+          }),
+        ).then(() => {
           onCreated();
         });
       },
@@ -196,7 +172,6 @@ const Z_INDEX = {
  * Display a talent request in detail
  */
 export const TalentRequestsDetailPage = withStaticProperties({
-
   propTypes: {
     talentRequest: PropTypes.record(TalentRequest),
     agencies: PropTypes.iterableOf(PropTypes.record(Agency)),
@@ -225,7 +200,6 @@ export const TalentRequestsDetailPage = withStaticProperties({
     }).isRequired,
     dispatch: PropTypes.func.isRequired,
   },
-
 })(function TalentRequestsDetailPage(props) {
   const {
     talentRequest,
@@ -244,36 +218,34 @@ export const TalentRequestsDetailPage = withStaticProperties({
     ]);
   };
 
-  const fire = (action) => () => dispatch(action);
+  const fire = action => () => dispatch(action);
 
-  const status = !!talentRequest ? TALENT_REQUEST_STATES[talentRequest.status] : null;
+  const status = !!talentRequest
+    ? TALENT_REQUEST_STATES[talentRequest.status]
+    : null;
 
   const searchRange = !!talentRequest &&
-  !!talentRequest.start_date && !!talentRequest.end_date ?
-    new DateRange(talentRequest.start_date, talentRequest.end_date) :
-    null;
+    !!talentRequest.start_date &&
+    !!talentRequest.end_date
+    ? new DateRange(talentRequest.start_date, talentRequest.end_date)
+    : null;
 
   const heading = (
     <div>
-      {isRecruitmentManager(viewer) ? (
-        <Link to="@requests">
-          Talent Requests
-        </Link>
-      ) : (
-        <Link to="@myrequests">
-          My Requests
-        </Link>
-      )}
+      {isRecruitmentManager(viewer)
+        ? <Link to="@requests">
+            Talent Requests
+          </Link>
+        : <Link to="@myrequests">
+            My Requests
+          </Link>}
       <Icon>chevron_right</Icon>
       {!!talentRequest ? talentRequest.job_title : 'Loading'}
     </div>
   );
 
   const menu = (
-    <ContextualMenuButton
-      iconColor="grey"
-      origin="top right"
-    >
+    <ContextualMenuButton iconColor="grey" origin="top right">
       <AgencyChecklist
         talentRequest={talentRequest}
         agencies={agencies}
@@ -318,75 +290,58 @@ export const TalentRequestsDetailPage = withStaticProperties({
   ];
 
   return (
-    <Box
-      margin="50px auto 20px"
-      maxWidth={1180}
-      width="100%"
-    >
-      {queries.talentRequest.ready ? (
-        <div>
-          <SectionHeader marginBottom={20} heading={heading} />
-          <Flex
-            flexDirection="row"
-          >
-            <Flex
-              flex={2}
-              flexDirection="column"
-              marginRight={20}
-            >
-              <CardHeader
-                locked={true}
-                title="Request Details"
-                justify="flex-start"
-                primaryActions={(
-                  status !== TALENT_REQUEST_STATES.cancelled &&
-                  status !== TALENT_REQUEST_STATES.placed
-                )
-                  ? editTalentRequest
-                  : undefined
-                }
-              />
-              <Paper padded={true}>
-                <TalentRequestInformation
-                  talentRequest={talentRequest}
-                  menu={menu}
+    <Box margin="50px auto 20px" maxWidth={1180} width="100%">
+      {queries.talentRequest.ready
+        ? <div>
+            <SectionHeader marginBottom={20} heading={heading} />
+            <Flex flexDirection="row">
+              <Flex flex={2} flexDirection="column" marginRight={20}>
+                <CardHeader
+                  locked={true}
+                  title="Request Details"
+                  justify="flex-start"
+                  primaryActions={
+                    status !== TALENT_REQUEST_STATES.cancelled &&
+                      status !== TALENT_REQUEST_STATES.placed
+                      ? editTalentRequest
+                      : undefined
+                  }
                 />
-              </Paper>
-            </Flex>
+                <Paper padded={true}>
+                  <TalentRequestInformation
+                    talentRequest={talentRequest}
+                    menu={menu}
+                  />
+                </Paper>
+              </Flex>
 
-            <Flex
-              flex={1}
-              flexDirection="column"
-              marginLeft={20}
-            >
-              <UpdatesCard
-                talentRequest={talentRequest}
-                marginBottom={30}
+              <Flex flex={1} flexDirection="column" marginLeft={20}>
+                <UpdatesCard talentRequest={talentRequest} marginBottom={30} />
+                <NotesCard
+                  title="Hiring Notes"
+                  parent={talentRequest}
+                  privacyMode={PRIVACY_MODES.PRIVATE}
+                />
+              </Flex>
+            </Flex>
+            <Flex marginTop={40} flexDirection="column">
+              <SectionHeader
+                icon="lock"
+                marginBottom={20}
+                heading="Candidates"
               />
-              <NotesCard
-                title="Hiring Notes"
-                parent={talentRequest}
-                privacyMode={PRIVACY_MODES.PRIVATE}
+              <CandidateList
+                finalCandidate={talentRequest.final_candidate}
+                candidates={talentRequest.candidates}
+                team={viewer.team}
+                searchRange={searchRange}
+                setFinalCandidate={props.setFinalCandidate}
+                removeCandidate={props.removeCandidate}
+                viewer={viewer}
               />
             </Flex>
-          </Flex>
-          <Flex
-            marginTop={40}
-            flexDirection="column"
-          >
-            <SectionHeader icon="lock" marginBottom={20} heading="Candidates" />
-            <CandidateList
-              finalCandidate={talentRequest.final_candidate}
-              candidates={talentRequest.candidates}
-              team={viewer.team}
-              searchRange={searchRange}
-              setFinalCandidate={props.setFinalCandidate}
-              removeCandidate={props.removeCandidate}
-              viewer={viewer}
-            />
-          </Flex>
-        </div>
-      ) : <LoadingSpinner size="medium" /> }
+          </div>
+        : <LoadingSpinner size="medium" />}
     </Box>
   );
 });
@@ -398,7 +353,7 @@ const candidateFragment = {
     id: true,
   },
   talent_request: {
-    id: true
+    id: true,
   },
   supplier: {
     id: true,
@@ -421,12 +376,12 @@ const candidateFragment = {
       accepted: true,
       invited_by: {
         id: true,
-        name: true
+        name: true,
       },
       created_at: true,
       created_by: {
         id: true,
-        name: true
+        name: true,
       },
       approved_at: true,
       contact_name: true,
@@ -438,9 +393,9 @@ const candidateFragment = {
         name: true,
         contact_name: true,
         email: true,
-      }
+      },
     },
-  }
+  },
 };
 
 export const container = createContainer({
@@ -457,7 +412,7 @@ export const container = createContainer({
       },
     }),
     talentRequest: q.single(TalentRequest, {
-      params: (vars) => ({
+      params: vars => ({
         id: vars.params.requestId,
       }),
       fields: {
@@ -488,15 +443,15 @@ export const container = createContainer({
             id: true,
             type: true,
             name: true,
-          }
+          },
         },
         final_candidate: {
-          ...candidateFragment
+          ...candidateFragment,
         },
         candidates: {
           edges: {
-            ...candidateFragment
-          }
+            ...candidateFragment,
+          },
         },
         agencies: {
           edges: {
@@ -504,20 +459,17 @@ export const container = createContainer({
             name: true,
             contact_name: true,
             email: true,
-          }
-        }
-      }
-    })
-  }
+          },
+        },
+      },
+    }),
+  },
 });
 
 const talentRequestOrNotFound = branch(
-  ({queries, talentRequest}) => (
-    !queries.talentRequest.ready ||
-    !!talentRequest
-  ),
+  ({queries, talentRequest}) => !queries.talentRequest.ready || !!talentRequest,
   identity,
-  notFound()
+  notFound(),
 );
 
 export default compose(
@@ -532,7 +484,5 @@ export default compose(
   }),
   container,
   talentRequestOrNotFound,
-  withReducer(
-    'state', 'dispatch', reducer, new State()
-  )
+  withReducer('state', 'dispatch', reducer, new State()),
 )(TalentRequestsDetailPage);

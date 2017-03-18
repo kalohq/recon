@@ -1,11 +1,6 @@
-/* eslint-env mocha */
-/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
-const expect = require('expect');
-
+/* eslint-env jest */
 // const pullStats = require('../pullStats');
 
-describe('recon-stats::pullStats', () => {
-  it('should generate stats given an engine to query', () => {
-    expect({}).toMatch({});
-  });
+it('should generate stats given an engine to query', () => {
+  expect({}).toMatchObject({});
 });
