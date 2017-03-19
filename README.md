@@ -112,6 +112,8 @@ For more details on all contributions see [CONTRIBUTING.md](./CONTRIBUTING.md)
 High-level Roadmap
 ------------------
 
+- [ ] Move CLI away from vorpal to a non-interactive version
+  - [ ] The engine should be spawned in the background. Ie. similar to flow server
 - [ ] Identify initial parsing issues across many codebases
   - [ ] Improve test `.toMatch` to not care about ordering (ie. add `toMatchUnordered`)
   - [ ] Provide better DX for dumping debug data and reporting issues
