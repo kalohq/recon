@@ -20,7 +20,12 @@
     "babylon": "^6.16.1",
     "fs-jetpack": "^0.13.1",
     "glob": "^7.0.5",
-    "graphql": "^0.11.7",
     "lodash": "^4.15.0"
+  },
+  "devDependencies": {
+    "graphql": "^0.11.7"
+  },
+  "peerDependencies": {
+    "graphql": ">=0.11.0"
   }
 }
