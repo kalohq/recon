@@ -356,20 +356,40 @@ function createSchema(dataSource, {resolveModulePaths}) {
         components: {
           type: new GraphQLList(componentType),
           args: {
-            name: {
+            search: {
               type: GraphQLString,
             },
           },
-          resolve(root, {name}) {
+          resolve(root, {search}) {
             const all = allComponents();
 
-            if (name) {
+            if (search) {
               return all.filter(
-                c => isString(c.name) && c.name.indexOf(name) > -1
+                c => isString(c.name) && c.name.indexOf(search) > -1
               );
             }
 
             return all;
+          },
+        },
+        component: {
+          type: componentType,
+          args: {
+            name: {
+              type: GraphQLString,
+            },
+            id: {
+              type: GraphQLString,
+            },
+          },
+          resolve(root, {name, id}) {
+            const all = allComponents();
+
+            if (id) {
+              return all.find(c => c.id === id) || null;
+            }
+
+            return all.find(c => c.name === name) || null;
           },
         },
         modules: {
@@ -378,7 +398,21 @@ function createSchema(dataSource, {resolveModulePaths}) {
             return getModules();
           },
         },
+        module: {
+          type: moduleType,
+          args: {
+            path: {
+              type: GraphQLString,
+            },
+          },
+          resolve(root, {path}) {
+            const all = getModules();
+
+            return all.find(c => c.path === path) || null;
+          },
+        },
         numComponents: {
+          // TODO: move into better "components" shape
           type: GraphQLString,
           resolve() {
             return allComponents().length;
