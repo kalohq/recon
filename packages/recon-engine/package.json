@@ -3,11 +3,7 @@
   "version": "0.0.6",
   "description": "The engine runtime for Recon.",
   "main": "src/index.js",
-  "keywords": [
-    "intellisense",
-    "components",
-    "react"
-  ],
+  "keywords": ["intellisense", "components", "react"],
   "author": "Lystable Industries <chris.pearce@lystable.com>",
   "license": "Apache-2.0",
   "repository": {
@@ -24,7 +20,7 @@
     "babylon": "^6.16.1",
     "fs-jetpack": "^0.13.1",
     "glob": "^7.0.5",
-    "graphql": "^0.9.1",
+    "graphql": "^0.11.7",
     "lodash": "^4.15.0"
   }
 }
