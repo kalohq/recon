@@ -1,6 +1,6 @@
 {
   "name": "recon-cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A commandline interface for wielding the power of Recon.",
   "main": "src/index.js",
   "keywords": [
@@ -23,10 +23,10 @@
     "fs-jetpack": "^0.13.1",
     "lodash": "^4.15.0",
     "progress": "^1.1.8",
-    "recon-config": "^0.0.6",
-    "recon-engine": "^0.0.6",
-    "recon-server": "^0.0.5",
-    "recon-stats": "^0.0.5",
+    "recon-config": "^0.0.7",
+    "recon-engine": "^0.0.7",
+    "recon-server": "^0.0.7",
+    "recon-stats": "^0.0.7",
     "vorpal": "^1.11.4"
   },
   "bin": {

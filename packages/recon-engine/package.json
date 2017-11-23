@@ -1,9 +1,13 @@
 {
   "name": "recon-engine",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "The engine runtime for Recon.",
   "main": "src/index.js",
-  "keywords": ["intellisense", "components", "react"],
+  "keywords": [
+    "intellisense",
+    "components",
+    "react"
+  ],
   "author": "Lystable Industries <chris.pearce@lystable.com>",
   "license": "Apache-2.0",
   "repository": {

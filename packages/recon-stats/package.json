@@ -1,6 +1,6 @@
 {
   "name": "recon-stats",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Generate stats from recon intelligence",
   "main": "src/index.js",
   "keywords": [
